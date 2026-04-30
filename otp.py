@@ -58,7 +58,7 @@ SERVICE_ADD_FEE = 10  # ₹10 fee to add service (charged ONLY after full add su
 # ===== PAYMENT VERIFICATION SETTINGS =====
 MIN_DEPOSIT = 1                  # ✅ minimum deposit ₹1
 AUTO_VERIFY_TIMEOUT = 10         # ✅ 10 seconds timeout for auto verification
-UTR_MAX_AGE_HOURS = 1            # ✅ only accept Transaction ID from checking server in last 1 hour
+UTR_MAX_AGE_HOURS = 1            # ✅ only accept ID from checking server in last 1 hour
 
 # Conversation States
 (
@@ -79,7 +79,7 @@ UTR_MAX_AGE_HOURS = 1            # ✅ only accept Transaction ID from checking 
     WAITING_FOR_BROADCAST_MESSAGE,
     WAITING_FOR_TARGET_USER_ID,
     WAITING_FOR_TARGET_AMOUNT,
-    WAITING_FOR_UTR,    # ✅ now used for Transaction ID (letters + numbers mixed)
+    WAITING_FOR_UTR,    # ✅ now used for Transaction ID OR UTR (any one)
 
     # ===== SERVER 2 ADD SERVICE FLOW =====
     WAITING_SERVICE_NAME,
@@ -119,7 +119,7 @@ def load_data():
         "bot_photo": None,
         "states": {},
         "used_discounts": {},
-        "used_utrs": {},        # ✅ used Transaction ID (one-time-use)
+        "used_utrs": {},        # ✅ used Transaction ID / UTR (one-time-use)
         "services": {},
         "service_seq": 0
     }
@@ -361,11 +361,12 @@ async def log_payment_rejected(context, user_id, username, amount, reason="Inval
 """
     await send_log_to_support(context, log)
 
-async def log_auto_approve_attempt(context, user_id, username, amount, utr, status, reason=""):
+async def log_auto_approve_attempt(context, user_id, username, amount, utr, status, reason="", id_type="ID"):
     safe_username = escape_markdown(username)
     safe_reason = escape_markdown(reason) if reason else ""
     safe_utr = escape_markdown(str(utr)) if utr else "N/A"
     safe_status = escape_markdown(str(status))
+    safe_id_type = escape_markdown(str(id_type))
     reason_line = f"\n📝 Reason: {safe_reason}" if reason else ""
     log = f"""
 🤖 *AUTO APPROVE ATTEMPT*
@@ -373,7 +374,7 @@ async def log_auto_approve_attempt(context, user_id, username, amount, utr, stat
 👤 User: {safe_username}
 🆔 ID: `{user_id}`
 💰 Amount: {amount} INR
-🔢 Transaction ID: `{safe_utr}`
+🔢 {safe_id_type}: `{safe_utr}`
 📊 Status: {safe_status}{reason_line}
 
 ⏰ Time: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}
@@ -384,7 +385,7 @@ async def log_auto_approve_attempt(context, user_id, username, amount, utr, stat
     user_log = (
         f"🤖 *Auto Approve Update*\n\n"
         f"💰 Amount: ₹{amount}.00\n"
-        f"🔢 Transaction ID: `{safe_utr}`\n"
+        f"🔢 {safe_id_type}: `{safe_utr}`\n"
         f"📊 Status: {safe_status}"
     )
     if reason:
@@ -514,9 +515,9 @@ def mark_discount_used(user_id, discount_code):
     data["used_discounts"][user_id].append(discount_code)
     save_data(data)
 
-# ✅ SAFE Transaction ID HELPERS
+# ✅ SAFE Transaction ID / UTR HELPERS
 def is_utr_used(utr: str) -> bool:
-    """Safely check if Transaction ID already used"""
+    """Safely check if Transaction ID / UTR already used"""
     used = data.get("used_utrs", {})
     if not isinstance(used, dict):
         data["used_utrs"] = {}
@@ -524,14 +525,14 @@ def is_utr_used(utr: str) -> bool:
     return utr.upper() in used
 
 def get_utr_used_info(utr: str):
-    """Get info about a used Transaction ID (or None)"""
+    """Get info about a used Transaction ID / UTR (or None)"""
     used = data.get("used_utrs", {})
     if not isinstance(used, dict):
         return None
     return used.get(utr.upper())
 
 def mark_utr_used(utr: str, user_id: int, amount: int, mode: str = "auto"):
-    """Safely mark Transaction ID as used (one-time-use, then expired)"""
+    """Safely mark Transaction ID / UTR as used (one-time-use, then expired)"""
     if not isinstance(data.get("used_utrs"), dict):
         data["used_utrs"] = {}
     data["used_utrs"][utr.upper()] = {
@@ -542,22 +543,41 @@ def mark_utr_used(utr: str, user_id: int, amount: int, mode: str = "auto"):
     }
     save_data(data)
 
-# ✅ Transaction ID validation: MUST be letters + numbers MIXED (alphanumeric, both required)
-def is_valid_utr_format(utr: str) -> bool:
-    """Transaction ID MUST contain BOTH letters AND digits (mixed). Pure-digit UTRs are rejected."""
-    if not utr:
+# ✅ Format detection: Transaction ID = letters+digits MIXED, UTR = pure digits
+def is_valid_txn_id_format(val: str) -> bool:
+    """Transaction ID MUST contain BOTH letters AND digits (mixed alphanumeric)."""
+    if not val:
         return False
-    utr = utr.strip()
-    if len(utr) < 8 or len(utr) > 30:
+    val = val.strip()
+    if len(val) < 8 or len(val) > 30:
         return False
-    # must be alphanumeric only
-    if not utr.isalnum():
+    if not val.isalnum():
         return False
-    has_letter = any(c.isalpha() for c in utr)
-    has_digit = any(c.isdigit() for c in utr)
-    if not (has_letter and has_digit):
+    has_letter = any(c.isalpha() for c in val)
+    has_digit = any(c.isdigit() for c in val)
+    return has_letter and has_digit
+
+def is_valid_utr_format(val: str) -> bool:
+    """UTR MUST be pure digits (numbers only). Length 10-22."""
+    if not val:
+        return False
+    val = val.strip()
+    if not val.isdigit():
+        return False
+    if len(val) < 10 or len(val) > 22:
         return False
     return True
+
+def detect_id_type(val: str):
+    """Return ('txn', value) or ('utr', value) or (None, None)."""
+    if not val:
+        return (None, None)
+    v = val.strip()
+    if is_valid_txn_id_format(v):
+        return ("txn", v.upper())
+    if is_valid_utr_format(v):
+        return ("utr", v)
+    return (None, None)
 
 # SPEED OPTIMIZED: Membership check with 1-hour cache
 async def check_user_membership(context, user_id):
@@ -625,10 +645,10 @@ async def logout_session(session_string, name="logout_client"):
         return False
 
 # ============ CHECKING SERVER (mailbox) HELPERS ============
-def _utr_in_text(utr, text):
-    if not utr or not text:
+def _id_in_text(idval, text):
+    if not idval or not text:
         return False
-    return utr.lower() in text.lower()
+    return idval.lower() in text.lower()
 
 def _extract_amounts(text):
     """Extract any rupee amounts from text. Return list of floats."""
@@ -690,18 +710,41 @@ def _get_email_body(msg):
         logger.error(f"[BODY DECODE ERROR] {e}")
     return body
 
-def _email_search_utr_sync(utr, expected_amount):
+def _extract_txn_and_utr_from_text(text):
+    """From a single email body, try to extract Transaction ID and UTR pair."""
+    txn_id = None
+    utr = None
+    if not text:
+        return (txn_id, utr)
+    # Transaction ID patterns
+    m = re.search(r'transaction\s*id\s*[:\-]?\s*([A-Z0-9]{8,30})', text, re.IGNORECASE)
+    if m:
+        candidate = m.group(1).strip()
+        if is_valid_txn_id_format(candidate):
+            txn_id = candidate.upper()
+    # UTR patterns
+    m2 = re.search(r'\butr\b\s*[:\-]?\s*([0-9]{10,22})', text, re.IGNORECASE)
+    if m2:
+        candidate2 = m2.group(1).strip()
+        if is_valid_utr_format(candidate2):
+            utr = candidate2
+    return (txn_id, utr)
+
+def _email_search_id_sync(idval, id_type, expected_amount):
     """
-    Synchronous checking-server check for given Transaction ID.
+    Synchronous checking-server check for given Transaction ID OR UTR.
     Returns dict:
-      {found, matched_amount, found_amount, too_old, error}
+      {found, matched_amount, found_amount, too_old, error,
+       txn_id, utr}     # ← extracted pair from same email if found
     """
     result = {
         "found": False,
         "matched_amount": False,
         "found_amount": None,
         "too_old": False,
-        "error": None
+        "error": None,
+        "txn_id": None,
+        "utr": None
     }
     try:
         mail = imaplib.IMAP4_SSL(GMAIL_IMAP_SERVER, GMAIL_IMAP_PORT)
@@ -723,7 +766,7 @@ def _email_search_utr_sync(utr, expected_amount):
         # iterate newest first
         ids = list(reversed(ids))
 
-        utr_str = str(utr)
+        idval_str = str(idval)
 
         for mid in ids:
             try:
@@ -736,7 +779,7 @@ def _email_search_utr_sync(utr, expected_amount):
                 body = _get_email_body(msg)
                 full = f"{subj}\n{body}"
 
-                if _utr_in_text(utr_str, full):
+                if _id_in_text(idval_str, full):
                     # check email date inside last UTR_MAX_AGE_HOURS
                     date_hdr = msg.get("Date", "")
                     too_old = False
@@ -744,7 +787,6 @@ def _email_search_utr_sync(utr, expected_amount):
                         from email.utils import parsedate_to_datetime
                         dt = parsedate_to_datetime(date_hdr)
                         if dt is not None:
-                            # compare in naive utc-ish way
                             now = datetime.now(dt.tzinfo) if dt.tzinfo else datetime.now()
                             if (now - dt).total_seconds() > UTR_MAX_AGE_HOURS * 3600:
                                 too_old = True
@@ -755,9 +797,13 @@ def _email_search_utr_sync(utr, expected_amount):
                     if too_old:
                         result["too_old"] = True
 
+                    # extract both txn id and utr pair from this email
+                    found_txn, found_utr = _extract_txn_and_utr_from_text(full)
+                    result["txn_id"] = found_txn
+                    result["utr"] = found_utr
+
                     found_amounts = _extract_amounts(full)
                     if found_amounts:
-                        # take amount nearest UTR occurrence
                         result["found_amount"] = found_amounts[0]
                         for amt in found_amounts:
                             if abs(amt - float(expected_amount)) < 0.01:
@@ -779,24 +825,24 @@ def _email_search_utr_sync(utr, expected_amount):
         result["error"] = f"system:{str(e)[:60]}"
         return result
 
-async def auto_verify_utr(utr, expected_amount):
+async def auto_verify_id(idval, id_type, expected_amount):
     """Async wrapper with timeout."""
     try:
         return await asyncio.wait_for(
-            asyncio.to_thread(_email_search_utr_sync, utr, expected_amount),
+            asyncio.to_thread(_email_search_id_sync, idval, id_type, expected_amount),
             timeout=AUTO_VERIFY_TIMEOUT
         )
     except asyncio.TimeoutError:
-        logger.error(f"[AUTO VERIFY] timeout >{AUTO_VERIFY_TIMEOUT}s for Transaction ID {utr}")
+        logger.error(f"[AUTO VERIFY] timeout >{AUTO_VERIFY_TIMEOUT}s for {id_type} {idval}")
         return {
             "found": False, "matched_amount": False, "found_amount": None,
-            "too_old": False, "error": "timeout"
+            "too_old": False, "error": "timeout", "txn_id": None, "utr": None
         }
     except Exception as e:
         logger.error(f"[AUTO VERIFY ERROR] {e}")
         return {
             "found": False, "matched_amount": False, "found_amount": None,
-            "too_old": False, "error": f"system:{str(e)[:60]}"
+            "too_old": False, "error": f"system:{str(e)[:60]}", "txn_id": None, "utr": None
         }
 
 # ============ FORCE JOIN ============
@@ -1729,6 +1775,7 @@ async def review_payment(update, context):
     username = data["users"].get(str(payment_user_id), {}).get("username", f"User_{payment_user_id}")
     safe_username = escape_markdown(username)
     utr = payment_info.get("utr", payment_info.get("txn_id", "N/A"))
+    id_type = payment_info.get("id_type", "ID").upper()
     safe_utr = escape_markdown(str(utr))
     text = f"""
 💳 *Payment Review*
@@ -1736,7 +1783,7 @@ async def review_payment(update, context):
 👤 User: {safe_username}
 🆔 ID: `{payment_user_id}`
 💰 Amount: ₹{payment_info['amount']}.00
-🔢 Transaction ID: `{safe_utr}`
+🔢 {id_type}: `{safe_utr}`
 ⏰ Time: {datetime.fromisoformat(payment_info['timestamp']).strftime('%H:%M %d/%m/%Y')}
 
 📸 Screenshot below ⬇️
@@ -1774,11 +1821,18 @@ async def approve_fund(update, context):
     amount = payment_info["amount"]
     username = data["users"].get(str(target_user_id), {}).get("username", f"User_{target_user_id}")
     utr = payment_info.get("utr", payment_info.get("txn_id", ""))
+    paired_txn = payment_info.get("paired_txn")
+    paired_utr = payment_info.get("paired_utr")
 
     data["users"][str(target_user_id)]["balance"] += amount
     data["pending_payments"][str(target_user_id)]["status"] = "approved"
     if utr:
         mark_utr_used(utr, target_user_id, amount, mode="manual")
+    # also block paired ids so user can't reuse the other half
+    if paired_txn:
+        mark_utr_used(paired_txn, target_user_id, amount, mode="manual_paired")
+    if paired_utr:
+        mark_utr_used(paired_utr, target_user_id, amount, mode="manual_paired")
     save_data(data)
 
     await log_payment_approved(context, target_user_id, username, amount, mode="MANUAL")
@@ -2434,10 +2488,11 @@ async def handle_screenshot(update, context):
     await update.message.reply_text(
         f"✅ Screenshot received!\n\n"
         f"💰 Amount: ₹{amount}.00\n\n"
-        f"🔢 Now send your *Transaction ID* (letters + numbers mixed).\n\n"
-        f"💡 Example: `T2501ABCD1234XYZ` (must contain BOTH letters and digits)\n"
-        f"⚠️ Pure-number UTR will NOT be accepted.\n"
-        f"⚠️ Transaction ID must be from a payment made within the last {UTR_MAX_AGE_HOURS} hour.",
+        f"🔢 Now send your *Transaction ID* OR *UTR* (any one).\n\n"
+        f"💡 *Transaction ID* example: `FMPIB5334310018` (letters + digits mixed)\n"
+        f"💡 *UTR* example: `612004984273` (numbers only, 10–22 digits)\n\n"
+        f"⚠️ Either one is fine — bot will accept whichever you send.\n"
+        f"⚠️ ID must be from a payment made within the last {UTR_MAX_AGE_HOURS} hour.",
         parse_mode='Markdown'
     )
     set_user_state(user_id, WAITING_FOR_UTR, {"amount": amount, "photo_id": photo_id})
@@ -2450,75 +2505,136 @@ async def handle_utr_input(update, context):
         return ConversationHandler.END
 
     raw = update.message.text.strip()
-    utr = raw.upper()
     amount = state["data"].get("amount", 0)
     photo_id = state["data"].get("photo_id")
     username = data["users"][str(user_id)].get("username", f"User_{user_id}")
     safe_username = escape_markdown(username)
 
-    # ====== Validate format: must be alphanumeric MIXED (letters + digits) ======
-    if not is_valid_utr_format(utr):
+    # ====== Detect type: Transaction ID OR UTR ======
+    id_type, idval = detect_id_type(raw)
+    if not id_type:
         await update.message.reply_text(
-            "❌ *Invalid Transaction ID format!*\n\n"
-            "🔢 Transaction ID must contain *BOTH letters AND digits* (mixed alphanumeric).\n"
-            "📏 Length: 8-30 characters.\n\n"
-            "💡 Example: `T2501ABCD1234XYZ`\n\n"
-            "📝 Please send a valid Transaction ID:",
+            "❌ *Invalid input!*\n\n"
+            "Please send either a valid *Transaction ID* (letters + digits mixed, 8-30 chars) "
+            "OR a valid *UTR* (numbers only, 10-22 digits).\n\n"
+            "💡 Transaction ID example: `FMPIB5334310018`\n"
+            "💡 UTR example: `612004984273`\n\n"
+            "📝 Send any one:",
             parse_mode='Markdown'
         )
         return WAITING_FOR_UTR
 
+    pretty_type = "Transaction ID" if id_type == "txn" else "UTR"
+
     # ====== Already used (one-time-use) ======
-    if is_utr_used(utr):
-        info = get_utr_used_info(utr) or {}
+    if is_utr_used(idval):
+        info = get_utr_used_info(idval) or {}
         await log_auto_approve_attempt(
-            context, user_id, username, amount, utr,
-            "REJECTED", "Transaction ID already used / expired"
+            context, user_id, username, amount, idval,
+            "REJECTED", f"{pretty_type} already used / expired", id_type=pretty_type
         )
         await update.message.reply_text(
-            f"❌ *This Transaction ID has already been used!*\n\n"
-            f"🔒 Transaction IDs are one-time-use only.\n"
-            f"💡 Please send a fresh new payment with a new Transaction ID.\n\n"
+            f"❌ *This {pretty_type} has already been used!*\n\n"
+            f"🔒 Both Transaction ID and UTR of a single payment are one-time-use only.\n"
+            f"💡 If you already submitted one half (Transaction ID or UTR) of this payment, "
+            f"the other half is automatically expired too.\n\n"
+            f"💡 Please make a *fresh new payment* and send its new Transaction ID or UTR.\n\n"
             f"📞 Contact: @lTZ_ME_ADITYA_02",
             parse_mode='Markdown'
         )
         clear_user_state(user_id)
         return ConversationHandler.END
 
-    # store utr in pending
+    # store in pending
     if str(user_id) not in data["pending_payments"]:
         data["pending_payments"][str(user_id)] = {}
     data["pending_payments"][str(user_id)].update({
         "amount": amount,
         "photo_id": photo_id,
-        "utr": utr,
+        "utr": idval,
+        "id_type": id_type,
         "timestamp": datetime.now().isoformat(),
         "status": "submitted"
     })
     save_data(data)
 
-    # ====== Tell user we are auto-verifying via checking server ======
+    # ====== Tell user we are auto-verifying ======
     verifying_msg = await update.message.reply_text(
         f"🤖 *Auto-verifying your payment...*\n\n"
         f"💰 Amount: ₹{amount}.00\n"
-        f"🔢 Transaction ID: `{escape_markdown(utr)}`\n\n"
+        f"🔢 {pretty_type}: `{escape_markdown(idval)}`\n\n"
         f"⏳ Checking on our checking server (max {AUTO_VERIFY_TIMEOUT}s)...",
         parse_mode='Markdown'
     )
 
     # ====== Run auto verify ======
-    result = await auto_verify_utr(utr, amount)
+    result = await auto_verify_id(idval, id_type, amount)
+    paired_txn = result.get("txn_id")
+    paired_utr = result.get("utr")
+
+    # store paired ids in pending so manual approve also blocks both
+    if paired_txn or paired_utr:
+        data["pending_payments"][str(user_id)]["paired_txn"] = paired_txn
+        data["pending_payments"][str(user_id)]["paired_utr"] = paired_utr
+        save_data(data)
+
+    # If paired side is already used → block this submission too
+    if paired_txn and paired_txn.upper() != idval.upper() and is_utr_used(paired_txn):
+        # mark this side too
+        mark_utr_used(idval, user_id, amount, mode="auto_paired_used")
+        await log_auto_approve_attempt(
+            context, user_id, username, amount, idval,
+            "REJECTED", f"Paired Transaction ID was already used for this payment", id_type=pretty_type
+        )
+        try:
+            await verifying_msg.edit_text(
+                f"❌ *This payment was already approved earlier!*\n\n"
+                f"🔒 The Transaction ID of this same payment was already used and approved before.\n"
+                f"That means this UTR/Transaction ID is now expired.\n\n"
+                f"💡 Please make a *fresh new payment* and send its new ID.\n"
+                f"📞 Contact: @lTZ_ME_ADITYA_02",
+                parse_mode='Markdown'
+            )
+        except:
+            pass
+        clear_user_state(user_id)
+        return ConversationHandler.END
+
+    if paired_utr and paired_utr != idval and is_utr_used(paired_utr):
+        mark_utr_used(idval, user_id, amount, mode="auto_paired_used")
+        await log_auto_approve_attempt(
+            context, user_id, username, amount, idval,
+            "REJECTED", f"Paired UTR was already used for this payment", id_type=pretty_type
+        )
+        try:
+            await verifying_msg.edit_text(
+                f"❌ *This payment was already approved earlier!*\n\n"
+                f"🔒 The UTR of this same payment was already used and approved before.\n"
+                f"That means this Transaction ID is now expired.\n\n"
+                f"💡 Please make a *fresh new payment* and send its new ID.\n"
+                f"📞 Contact: @lTZ_ME_ADITYA_02",
+                parse_mode='Markdown'
+            )
+        except:
+            pass
+        clear_user_state(user_id)
+        return ConversationHandler.END
 
     # ====== CASE 1: Found + amount matches → AUTO APPROVE ======
     if result.get("found") and result.get("matched_amount") and not result.get("too_old"):
         data["users"][str(user_id)]["balance"] += amount
         data["pending_payments"][str(user_id)]["status"] = "approved"
-        mark_utr_used(utr, user_id, amount, mode="auto")
+        # mark both sides used (so the other half also expires)
+        mark_utr_used(idval, user_id, amount, mode="auto")
+        if paired_txn and paired_txn.upper() != idval.upper():
+            mark_utr_used(paired_txn, user_id, amount, mode="auto_paired")
+        if paired_utr and paired_utr != idval:
+            mark_utr_used(paired_utr, user_id, amount, mode="auto_paired")
         save_data(data)
 
         await log_auto_approve_attempt(
-            context, user_id, username, amount, utr,
-            "AUTO APPROVED", "Transaction ID + amount match in checking server"
+            context, user_id, username, amount, idval,
+            "AUTO APPROVED", f"{pretty_type} + amount match in checking server", id_type=pretty_type
         )
         await log_payment_approved(context, user_id, username, amount, mode="AUTO")
 
@@ -2544,16 +2660,21 @@ async def handle_utr_input(update, context):
         clear_user_state(user_id)
         return ConversationHandler.END
 
-    # ====== CASE 2: Found but amount mismatch → REJECT (do NOT send to owner) ======
+    # ====== CASE 2: Found but amount mismatch → REJECT ======
     if result.get("found") and not result.get("matched_amount") and not result.get("too_old"):
         found_amt = result.get("found_amount")
         await log_auto_approve_attempt(
-            context, user_id, username, amount, utr,
+            context, user_id, username, amount, idval,
             "AMOUNT MISMATCH",
-            f"Expected ₹{amount}, found ₹{found_amt} for this Transaction ID"
+            f"Expected ₹{amount}, found ₹{found_amt} for this {pretty_type}",
+            id_type=pretty_type
         )
-        # mark this UTR used so user can't retry
-        mark_utr_used(utr, user_id, amount, mode="auto_failed_mismatch")
+        # mark this id (and paired) used so user can't retry with the other half
+        mark_utr_used(idval, user_id, amount, mode="auto_failed_mismatch")
+        if paired_txn and paired_txn.upper() != idval.upper():
+            mark_utr_used(paired_txn, user_id, amount, mode="auto_failed_mismatch_paired")
+        if paired_utr and paired_utr != idval:
+            mark_utr_used(paired_utr, user_id, amount, mode="auto_failed_mismatch_paired")
         data["pending_payments"][str(user_id)]["status"] = "rejected_mismatch"
         save_data(data)
 
@@ -2563,8 +2684,8 @@ async def handle_utr_input(update, context):
                 f"💰 You entered amount: ₹{amount}.00\n"
                 f"💰 Found in checking server: ₹{found_amt}\n\n"
                 f"📝 Reason: The amount you entered does not match the payment.\n"
-                f"🔒 This Transaction ID is now expired.\n\n"
-                f"💡 Please make a *fresh deposit with the correct amount* and send the new Transaction ID.\n"
+                f"🔒 This payment's Transaction ID and UTR are both now expired.\n\n"
+                f"💡 Please make a *fresh deposit with the correct amount* and send the new ID.\n"
                 f"📞 Contact: @lTZ_ME_ADITYA_02",
                 parse_mode='Markdown'
             )
@@ -2573,23 +2694,28 @@ async def handle_utr_input(update, context):
         clear_user_state(user_id)
         return ConversationHandler.END
 
-    # ====== CASE 3: Found but too old (>1h) → REJECT (old Transaction ID) ======
+    # ====== CASE 3: Found but too old (>1h) → REJECT ======
     if result.get("too_old"):
         await log_auto_approve_attempt(
-            context, user_id, username, amount, utr,
-            "TXN ID TOO OLD", f"Transaction ID found but older than {UTR_MAX_AGE_HOURS}h"
+            context, user_id, username, amount, idval,
+            "ID TOO OLD", f"{pretty_type} found but older than {UTR_MAX_AGE_HOURS}h",
+            id_type=pretty_type
         )
-        mark_utr_used(utr, user_id, amount, mode="auto_failed_too_old")
+        mark_utr_used(idval, user_id, amount, mode="auto_failed_too_old")
+        if paired_txn and paired_txn.upper() != idval.upper():
+            mark_utr_used(paired_txn, user_id, amount, mode="auto_failed_too_old_paired")
+        if paired_utr and paired_utr != idval:
+            mark_utr_used(paired_utr, user_id, amount, mode="auto_failed_too_old_paired")
         data["pending_payments"][str(user_id)]["status"] = "rejected_old_utr"
         save_data(data)
 
         try:
             await verifying_msg.edit_text(
-                f"❌ *Auto Approval Failed — Old Transaction ID!*\n\n"
-                f"📝 Reason: This Transaction ID is older than {UTR_MAX_AGE_HOURS} hour. "
-                f"We only accept Transaction IDs from payments made in the last {UTR_MAX_AGE_HOURS} hour.\n\n"
-                f"🔒 Transaction ID has been marked expired.\n\n"
-                f"💡 Please make a fresh new payment and send its Transaction ID.\n"
+                f"❌ *Auto Approval Failed — Old {pretty_type}!*\n\n"
+                f"📝 Reason: This {pretty_type} is older than {UTR_MAX_AGE_HOURS} hour. "
+                f"We only accept IDs from payments made in the last {UTR_MAX_AGE_HOURS} hour.\n\n"
+                f"🔒 This payment's Transaction ID and UTR are both now expired.\n\n"
+                f"💡 Please make a fresh new payment and send its new ID.\n"
                 f"📞 Contact: @lTZ_ME_ADITYA_02",
                 parse_mode='Markdown'
             )
@@ -2598,7 +2724,7 @@ async def handle_utr_input(update, context):
         clear_user_state(user_id)
         return ConversationHandler.END
 
-    # ====== CASE 4: Not found / timeout / error → INSTANT MANUAL REVIEW BY OWNER (within 10s) ======
+    # ====== CASE 4: Not found / timeout / error → INSTANT MANUAL REVIEW BY OWNER ======
     data["pending_payments"][str(user_id)]["status"] = "manual_review"
     save_data(data)
 
@@ -2608,14 +2734,14 @@ async def handle_utr_input(update, context):
     elif err:
         fail_reason = f"System error: {err} — sent to owner"
     else:
-        fail_reason = f"Transaction ID not found in last {UTR_MAX_AGE_HOURS}h checking server — sent to owner"
+        fail_reason = f"{pretty_type} not found in last {UTR_MAX_AGE_HOURS}h checking server — sent to owner"
 
     await log_auto_approve_attempt(
-        context, user_id, username, amount, utr,
-        "MANUAL REVIEW", fail_reason
+        context, user_id, username, amount, idval,
+        "MANUAL REVIEW", fail_reason, id_type=pretty_type
     )
 
-    # ✅ Forward to owner with screenshot + manual approve buttons (instantly, within 10s)
+    # ✅ Forward to owner with screenshot + manual approve buttons
     try:
         keyboard_owner = [
             [InlineKeyboardButton("✅ APPROVE", callback_data=f"approve_fund_{user_id}"),
@@ -2629,19 +2755,18 @@ async def handle_utr_input(update, context):
                     f"👤 User: {safe_username}\n"
                     f"🆔 ID: `{user_id}`\n"
                     f"💰 Amount: ₹{amount}.00\n"
-                    f"🔢 Transaction ID: `{escape_markdown(utr)}`\n"
+                    f"🔢 {pretty_type}: `{escape_markdown(idval)}`\n"
                     f"📝 Reason: {escape_markdown(fail_reason)}",
             reply_markup=reply_markup_owner,
             parse_mode='Markdown'
         )
     except Exception as e:
         logger.error(f"[FORWARD ERROR] {e}")
-        # fallback: send as text only
         try:
             await context.bot.send_message(
                 chat_id=OWNER_ID,
                 text=f"💳 Manual Payment Review (no photo)\n\n"
-                     f"User: {username}\nID: {user_id}\nAmount: ₹{amount}.00\nTransaction ID: {utr}\nReason: {fail_reason}",
+                     f"User: {username}\nID: {user_id}\nAmount: ₹{amount}.00\n{pretty_type}: {idval}\nReason: {fail_reason}",
                 reply_markup=InlineKeyboardMarkup([
                     [InlineKeyboardButton("✅ APPROVE", callback_data=f"approve_fund_{user_id}"),
                      InlineKeyboardButton("❌ REJECT", callback_data=f"reject_fund_{user_id}")]
@@ -2650,7 +2775,6 @@ async def handle_utr_input(update, context):
         except Exception as e2:
             logger.error(f"[FORWARD FALLBACK ERROR] {e2}")
 
-    # ✅ Tell user clearly in DM: reason + sent to owner for manual approve
     user_msg = (
         f"⚠️ *Auto verification could not confirm your payment.*\n\n"
         f"📝 Reason: {escape_markdown(fail_reason)}\n\n"
@@ -3340,20 +3464,18 @@ def main():
     application.add_error_handler(error_handler)
 
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print("🔥 VIRTUAL ACCOUNT BOT - FULLY FIXED v4 🔥")
+    print("🔥 VIRTUAL ACCOUNT BOT - FULLY FIXED v5 🔥")
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     print(f"\n👑 Owner: {OWNER_ID}")
     print(f"📊 Users: {len(data['users'])}")
     print(f"🌍 Countries: {len(data['accounts'])}")
-    print(f"\n✅ FIXES (v4):")
-    print(f"   • Transaction ID = letters + digits MIXED (alnum) — pure numbers rejected")
+    print(f"\n✅ FIXES (v5):")
+    print(f"   • Accept BOTH Transaction ID (alnum mixed) AND UTR (pure digits) — user can send any one")
+    print(f"   • If user uses one (e.g. UTR) and gets approved → other half (Transaction ID) auto-expires")
+    print(f"   • If user later submits the paired half → denied with reason (no error)")
     print(f"   • Auto-verify timeout {AUTO_VERIFY_TIMEOUT}s → INSTANT manual review to OWNER DM")
     print(f"   • Checking server window: last {UTR_MAX_AGE_HOURS}h only")
     print("   • Auto approve → user gets DM notification (always)")
-    print("   • All small auto-approve logs sent to user too (always)")
-    print("   • Manual review → user gets DM: 'sent to owner for manual approve'")
-    print("   • Amount mismatch → user DM: 'fresh deposit with correct amount'")
-    print("   • Used / old Transaction ID → user DM with reason")
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     print("🚀 Bot is LIVE! Press Ctrl+C to stop.")
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
