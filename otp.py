@@ -45,34 +45,33 @@ LOGS_GROUP_ID = -1003764994914
 SUPPORT_CHANNEL_LINK = "https://t.me/zudootp"
 SUPPORT_GROUP_LINK = "https://t.me/zudootpsupport"
 
-# Owner contact (used by AI to tag owner)
+# Owner contact
 OWNER_TG_LINK = "t.me/manwithoutego"
 OWNER_TG_USERNAME = "manwithoutego"
 
-# Resale buyer bot (shown on resale list)
+# Resale buyer bot
 RESALE_BUYER_BOT = "@zudobuyerbot"
 
 # UPI Details
 UPI_ID = "fearlessaditya@fam"
 UPI_NAME = "Aditya"
 
-# ===== CHECKING SERVER CONFIG (HIDDEN) =====
+# ===== CHECKING SERVER CONFIG =====
 GMAIL_EMAIL = "deviramrani489@gmail.com"
 GMAIL_PASSWORD = "eprrbxhaibzwwhqv"
 GMAIL_IMAP_SERVER = "imap.gmail.com"
 GMAIL_IMAP_PORT = 993
 
-# Legacy JSON DB (kept as fallback / migration source)
 DB_FILE = "virtual_bot_data.json"
 
 # Membership cache (1 hour)
 membership_cache = {}
 CACHE_DURATION = 3600
 
-# ===== SERVER 2 (Services Marketplace) =====
+# ===== SERVER 2 =====
 SERVICE_ADD_FEE = 10
 
-# ===== PAYMENT VERIFICATION SETTINGS =====
+# ===== PAYMENT VERIFICATION =====
 MIN_DEPOSIT = 1
 AUTO_VERIFY_TIMEOUT = 10
 UTR_MAX_AGE_HOURS = 1
@@ -85,6 +84,42 @@ OPENROUTER_URL = "https://api.groq.com/openai/v1/chat/completions"
 MODEL        = "llama-3.1-8b-instant"
 VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
 MAX_IMAGES   = 5
+
+# Country flags map (extended)
+COUNTRY_FLAGS = {
+    "USA": "🇺🇸", "US": "🇺🇸", "UK": "🇬🇧", "INDIA": "🇮🇳", "CANADA": "🇨🇦",
+    "AUSTRALIA": "🇦🇺", "GERMANY": "🇩🇪", "FRANCE": "🇫🇷", "JAPAN": "🇯🇵",
+    "KENYA": "🇰🇪", "NIGERIA": "🇳🇬", "PAKISTAN": "🇵🇰", "GHANA": "🇬🇭",
+    "RUSSIA": "🇷🇺", "CHINA": "🇨🇳", "BRAZIL": "🇧🇷", "MEXICO": "🇲🇽",
+    "ITALY": "🇮🇹", "SPAIN": "🇪🇸", "TURKEY": "🇹🇷", "INDONESIA": "🇮🇩",
+    "BANGLADESH": "🇧🇩", "NEPAL": "🇳🇵", "SRILANKA": "🇱🇰", "PHILIPPINES": "🇵🇭",
+    "VIETNAM": "🇻🇳", "THAILAND": "🇹🇭", "MALAYSIA": "🇲🇾", "SINGAPORE": "🇸🇬",
+    "SOUTHAFRICA": "🇿🇦", "EGYPT": "🇪🇬", "UAE": "🇦🇪", "SAUDIARABIA": "🇸🇦",
+    "IRAN": "🇮🇷", "IRAQ": "🇮🇶", "SOUTHKOREA": "🇰🇷", "KOREA": "🇰🇷",
+    "POLAND": "🇵🇱", "UKRAINE": "🇺🇦", "NETHERLANDS": "🇳🇱", "BELGIUM": "🇧🇪",
+    "SWEDEN": "🇸🇪", "NORWAY": "🇳🇴", "FINLAND": "🇫🇮", "DENMARK": "🇩🇰",
+    "PORTUGAL": "🇵🇹", "GREECE": "🇬🇷", "IRELAND": "🇮🇪", "AUSTRIA": "🇦🇹",
+    "SWITZERLAND": "🇨🇭", "ARGENTINA": "🇦🇷", "COLOMBIA": "🇨🇴", "CHILE": "🇨🇱",
+    "PERU": "🇵🇪", "VENEZUELA": "🇻🇪"
+}
+
+def get_country_flag(country_name):
+    """Get flag emoji for country. Country name may include year/tag suffix."""
+    if not country_name:
+        return "📱"
+    # Try full name first
+    upper = country_name.upper().strip()
+    if upper in COUNTRY_FLAGS:
+        return COUNTRY_FLAGS[upper]
+    # Try first word
+    first = upper.split()[0].split("(")[0].strip()
+    if first in COUNTRY_FLAGS:
+        return COUNTRY_FLAGS[first]
+    # Try removing all non-alpha
+    cleaned = re.sub(r'[^A-Z]', '', first)
+    if cleaned in COUNTRY_FLAGS:
+        return COUNTRY_FLAGS[cleaned]
+    return "📱"
 
 # Conversation States
 (
@@ -106,70 +141,16 @@ MAX_IMAGES   = 5
     WAITING_FOR_TARGET_USER_ID,
     WAITING_FOR_TARGET_AMOUNT,
     WAITING_FOR_UTR,
-
     WAITING_SERVICE_NAME,
     WAITING_SERVICE_PRICE,
     WAITING_SERVICE_CONTACT,
     WAITING_SERVICE_DESC,
-
     WAITING_FOR_UPI_SOURCE,
-
     WAITING_FOR_ADDACC_CHANNEL,
-
     WAITING_FOR_TRANSFER_USER,
     WAITING_FOR_TRANSFER_AMOUNT,
-
     WAITING_FOR_ADDBAL_AMOUNT
 ) = range(27)
-
-# Country flags mapping - expanded
-COUNTRY_FLAGS = {
-    "USA": "🇺🇸", "US": "🇺🇸", "UK": "🇬🇧", "INDIA": "🇮🇳", "CANADA": "🇨🇦",
-    "AUSTRALIA": "🇦🇺", "GERMANY": "🇩🇪", "FRANCE": "🇫🇷", "JAPAN": "🇯🇵",
-    "KENYA": "🇰🇪", "NIGERIA": "🇳🇬", "PAKISTAN": "🇵🇰", "CHINA": "🇨🇳",
-    "RUSSIA": "🇷🇺", "BRAZIL": "🇧🇷", "MEXICO": "🇲🇽", "ITALY": "🇮🇹",
-    "SPAIN": "🇪🇸", "TURKEY": "🇹🇷", "INDONESIA": "🇮🇩", "PHILIPPINES": "🇵🇭",
-    "VIETNAM": "🇻🇳", "THAILAND": "🇹🇭", "MALAYSIA": "🇲🇾", "SINGAPORE": "🇸🇬",
-    "BANGLADESH": "🇧🇩", "GHANA": "🇬🇭", "EGYPT": "🇪🇬", "SOUTH AFRICA": "🇿🇦",
-    "UAE": "🇦🇪", "SAUDI ARABIA": "🇸🇦", "IRAN": "🇮🇷", "IRAQ": "🇮🇶",
-    "AFGHANISTAN": "🇦🇫", "NEPAL": "🇳🇵", "SRI LANKA": "🇱🇰", "MYANMAR": "🇲🇲",
-    "UKRAINE": "🇺🇦", "POLAND": "🇵🇱", "NETHERLANDS": "🇳🇱", "BELGIUM": "🇧🇪",
-    "SWEDEN": "🇸🇪", "NORWAY": "🇳🇴", "FINLAND": "🇫🇮", "DENMARK": "🇩🇰",
-    "SWITZERLAND": "🇨🇭", "AUSTRIA": "🇦🇹", "GREECE": "🇬🇷", "PORTUGAL": "🇵🇹",
-    "IRELAND": "🇮🇪", "NEW ZEALAND": "🇳🇿", "ARGENTINA": "🇦🇷", "COLOMBIA": "🇨🇴",
-    "PERU": "🇵🇪", "CHILE": "🇨🇱", "VENEZUELA": "🇻🇪", "ETHIOPIA": "🇪🇹",
-    "MOROCCO": "🇲🇦", "ALGERIA": "🇩🇿", "TUNISIA": "🇹🇳", "ISRAEL": "🇮🇱",
-    "JORDAN": "🇯🇴", "LEBANON": "🇱🇧", "SYRIA": "🇸🇾", "YEMEN": "🇾🇪",
-    "OMAN": "🇴🇲", "QATAR": "🇶🇦", "KUWAIT": "🇰🇼", "BAHRAIN": "🇧🇭",
-    "SOUTH KOREA": "🇰🇷", "KOREA": "🇰🇷", "TAIWAN": "🇹🇼", "HONG KONG": "🇭🇰",
-    "CAMBODIA": "🇰🇭", "LAOS": "🇱🇦", "MONGOLIA": "🇲🇳", "KAZAKHSTAN": "🇰🇿",
-    "UZBEKISTAN": "🇺🇿", "AZERBAIJAN": "🇦🇿", "GEORGIA": "🇬🇪", "ARMENIA": "🇦🇲",
-    "ROMANIA": "🇷🇴", "BULGARIA": "🇧🇬", "HUNGARY": "🇭🇺", "CZECHIA": "🇨🇿",
-    "SLOVAKIA": "🇸🇰", "CROATIA": "🇭🇷", "SERBIA": "🇷🇸", "BELARUS": "🇧🇾",
-}
-
-def get_country_flag(country_name):
-    """Get flag emoji for country. Handles suffixes like '2024', 'Fresh' etc."""
-    if not country_name:
-        return "📱"
-    # Strip suffix like " 2024", " (Fresh)", " (2025)" etc.
-    base = re.sub(r'\s*[\(\-].*$', '', country_name).strip()
-    base = re.sub(r'\s+\d{4}.*$', '', base).strip()
-    upper = base.upper()
-    if upper in COUNTRY_FLAGS:
-        return COUNTRY_FLAGS[upper]
-    # Try full upper
-    upper_full = country_name.upper()
-    for key, flag in COUNTRY_FLAGS.items():
-        if key in upper_full:
-            return flag
-    return "📱"
-
-def format_country_name(country_name):
-    """Format country name for display (Title Case, keep suffix in parens)."""
-    if not country_name:
-        return "Unknown"
-    return country_name.title()
 
 # ============ MARKDOWN ESCAPE ============
 def escape_markdown(text):
@@ -177,6 +158,7 @@ def escape_markdown(text):
         return "Unknown"
     return (
         str(text)
+        .replace('\\', '\\\\')
         .replace('*', '\\*')
         .replace('_', '\\_')
         .replace('[', '\\[')
@@ -227,7 +209,7 @@ def _default_data():
         "service_seq": 0,
         "ai_enabled": True,
         "ai_memory": {},
-        "sales_stats": {}  # ✅ NEW: per-country sales tracking for AI
+        "sales_log": []  # track every sale for AI/analytics
     }
 
 def load_data():
@@ -238,7 +220,7 @@ def load_data():
         try:
             with open(DB_FILE, 'r') as f:
                 legacy = json.load(f)
-                logger.info("[MIGRATE] Loaded legacy JSON, saving to Mongo…")
+                logger.info("[MIGRATE] Loaded legacy JSON")
                 mongo_store.save(legacy)
                 return legacy
         except Exception as e:
@@ -256,7 +238,7 @@ data = load_data()
 # Force-correct types
 _DICT_KEYS = [
     "users", "accounts", "resale_accounts", "discount_codes", "coupons", "pending_payments",
-    "states", "used_discounts", "services", "used_utrs", "ai_memory", "sales_stats"
+    "states", "used_discounts", "services", "used_utrs", "ai_memory"
 ]
 for _k in _DICT_KEYS:
     if _k not in data or not isinstance(data.get(_k), dict):
@@ -275,6 +257,9 @@ if "bot_photo" not in data:
 
 if "ai_enabled" not in data or not isinstance(data.get("ai_enabled"), bool):
     data["ai_enabled"] = True
+
+if "sales_log" not in data or not isinstance(data.get("sales_log"), list):
+    data["sales_log"] = []
 
 save_data(data)
 
@@ -303,16 +288,24 @@ def generate_upi_qr(amount: int) -> BytesIO:
         logger.error(f"[QR GENERATION ERROR] {e}")
         return None
 
-def track_sale(country, quantity, price, channel="buy"):
-    """Track per-country sales for AI insights."""
-    if "sales_stats" not in data or not isinstance(data["sales_stats"], dict):
-        data["sales_stats"] = {}
-    key = f"{channel}:{country.upper()}"
-    if key not in data["sales_stats"]:
-        data["sales_stats"][key] = {"total_sold": 0, "total_revenue": 0, "last_sale": None}
-    data["sales_stats"][key]["total_sold"] += quantity
-    data["sales_stats"][key]["total_revenue"] += price
-    data["sales_stats"][key]["last_sale"] = datetime.now().isoformat()
+def record_sale(user_id, username, country, quantity, price, channel):
+    """Track every sale for AI analytics."""
+    try:
+        data["sales_log"].append({
+            "user_id": user_id,
+            "username": username,
+            "country": country,
+            "quantity": quantity,
+            "price": price,
+            "channel": channel,
+            "timestamp": datetime.now().isoformat()
+        })
+        # keep last 500
+        if len(data["sales_log"]) > 500:
+            data["sales_log"] = data["sales_log"][-500:]
+        save_data(data)
+    except Exception as e:
+        logger.error(f"[SALES LOG ERROR] {e}")
 
 # ============ LOGGING → LOGS GROUP ============
 async def send_log_to_support(context, log_message):
@@ -370,7 +363,7 @@ async def log_number_purchase(context, user_id, username, country, quantity, pri
     safe_username = escape_markdown(username)
     phones_text = "\n".join([f"   • `{phone}`" for phone in phone_numbers])
     log = f"""
-✅ *NUMBER SOLD - SUCCESSFUL* ({channel.upper()})
+✅ *NUMBER SOLD - SUCCESSFUL ({channel.upper()})*
 
 👤 Buyer: {safe_username}
 🆔 User ID: `{user_id}`
@@ -391,7 +384,7 @@ async def log_session_added(context, country, quantity, price, phone_number="N/A
     ch_dict = data["accounts"] if channel == "buy" else data["resale_accounts"]
     total_stock = ch_dict.get(country, {}).get('quantity', 0)
     log = f"""
-➕ *SESSION ADDED* ({channel.upper()})
+➕ *SESSION ADDED ({channel.upper()})*
 
 🌍 Country: {country.upper()}
 📊 Added: {quantity} session(s)
@@ -406,7 +399,7 @@ async def log_session_added(context, country, quantity, price, phone_number="N/A
 
 async def log_country_deleted(context, country, quantity, price, channel="buy"):
     log = f"""
-🗑️ *COUNTRY DELETED* ({channel.upper()})
+🗑️ *COUNTRY DELETED ({channel.upper()})*
 
 🌍 Country: {country.upper()}
 📊 Removed: {quantity} session(s)
@@ -710,10 +703,10 @@ def detect_id_type(val: str):
     if not val:
         return (None, None)
     v = val.strip()
-    if is_valid_txn_id_format(v):
-        return ("txn", v.upper())
     if is_valid_utr_format(v):
         return ("utr", v)
+    if is_valid_txn_id_format(v):
+        return ("txn", v.upper())
     return (None, None)
 
 # ============ MEMBERSHIP ============
@@ -724,11 +717,11 @@ async def check_user_membership(context, user_id):
         if current_time - cache_entry["time"] < CACHE_DURATION:
             return cache_entry["is_member"]
     try:
-        channel_member = await context.bot.get_chat_member(chat_id=SUPPORT_CHANNEL_ID, user_id=user_id)
-        group_member = await context.bot.get_chat_member(chat_id=SUPPORT_GROUP_ID, user_id=user_id)
+        ch_member = await context.bot.get_chat_member(SUPPORT_CHANNEL_ID, user_id)
+        gr_member = await context.bot.get_chat_member(SUPPORT_GROUP_ID, user_id)
         is_member = (
-            channel_member.status in ['member', 'administrator', 'creator'] and
-            group_member.status in ['member', 'administrator', 'creator']
+            ch_member.status in ["creator", "administrator", "member"] and
+            gr_member.status in ["creator", "administrator", "member"]
         )
         membership_cache[user_id] = {"is_member": is_member, "time": current_time}
         return is_member
@@ -736,69 +729,62 @@ async def check_user_membership(context, user_id):
         logger.error(f"[MEMBERSHIP CHECK ERROR] {e}")
         return False
 
-# ============ PYROGRAM HELPERS ============
-async def create_client(session_string, name="temp_client"):
-    try:
-        client = Client(name=name, api_id=API_ID, api_hash=API_HASH, session_string=session_string, in_memory=True)
-        await client.start()
-        return client
-    except Exception as e:
-        logger.error(f"[CLIENT ERROR] {e}")
-        return None
+async def show_force_join_message(update, context):
+    text = """
+🔒 *Access Restricted*
 
-async def get_phone_number(client):
-    try:
-        me = await client.get_me()
-        return me.phone_number if me.phone_number else "N/A"
-    except Exception as e:
-        logger.error(f"[PHONE ERROR] {e}")
-        return "Error"
+To use this bot, please join:
 
-async def get_otp_from_telegram(client):
-    try:
-        async for message in client.get_chat_history(777000, limit=10):
-            if message.text:
-                otp_patterns = [
-                    r'(?:code|otp|login code)[:\s]*([0-9]{4,8})',
-                    r'\b([0-9]{4,8})\b',
-                ]
-                for pattern in otp_patterns:
-                    match = re.search(pattern, message.text, re.IGNORECASE)
-                    if match:
-                        return match.group(1)
-        return None
-    except Exception as e:
-        logger.error(f"[OTP ERROR] {e}")
-        return None
+📢 Channel & 💬 Support Group
 
-async def logout_session(session_string, name="logout_client"):
-    try:
-        client = Client(name=name, api_id=API_ID, api_hash=API_HASH, session_string=session_string, in_memory=True)
-        await client.start()
-        await client.log_out()
-        return True
-    except Exception as e:
-        logger.error(f"[LOGOUT ERROR] {e}")
-        return False
+After joining, click *Verify*.
+"""
+    keyboard = [
+        [InlineKeyboardButton("📢 Join Channel", url=SUPPORT_CHANNEL_LINK)],
+        [InlineKeyboardButton("💬 Join Group", url=SUPPORT_GROUP_LINK)],
+        [InlineKeyboardButton("✅ Verify", callback_data="verify_join")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    if update.callback_query:
+        try:
+            await update.callback_query.edit_message_text(text, reply_markup=reply_markup, parse_mode='Markdown')
+        except:
+            await update.callback_query.message.reply_text(text, reply_markup=reply_markup, parse_mode='Markdown')
+    else:
+        await update.message.reply_text(text, reply_markup=reply_markup, parse_mode='Markdown')
 
-# ============ CHECKING-SERVER (mailbox) HELPERS ============
+async def verify_join_handler(update, context):
+    query = update.callback_query
+    user_id = update.effective_user.id
+    if user_id in membership_cache:
+        del membership_cache[user_id]
+    is_member = await check_user_membership(context, user_id)
+    if is_member:
+        await query.answer("✅ Verified!", show_alert=False)
+        await main_menu(update, context)
+    else:
+        await query.answer("❌ Please join both channel & group first!", show_alert=True)
+
+# ============ IMAP EMAIL VERIFICATION ============
 def _id_in_text(idval, text):
     if not idval or not text:
         return False
-    return idval.lower() in text.lower()
+    return str(idval).upper() in text.upper()
 
 def _extract_amounts(text):
-    found = []
     if not text:
-        return found
+        return []
+    found = []
     patterns = [
-        r'(?:rs\.?|inr|₹)\s*([0-9]{1,7}(?:\.[0-9]{1,2})?)',
-        r'\b([0-9]{1,7}(?:\.[0-9]{1,2})?)\s*(?:rs\.?|inr|₹|rupees)',
+        r'(?:rs\.?|₹|inr)\s*([\d,]+(?:\.\d{1,2})?)',
+        r'([\d,]+(?:\.\d{1,2})?)\s*(?:rs\.?|₹|inr)',
+        r'amount\s*[:\-]?\s*(?:rs\.?|₹|inr)?\s*([\d,]+(?:\.\d{1,2})?)',
     ]
     for pat in patterns:
         for m in re.finditer(pat, text, re.IGNORECASE):
+            raw = m.group(1).replace(',', '')
             try:
-                val = float(m.group(1))
+                val = float(raw)
                 if val > 0:
                     found.append(val)
             except:
@@ -922,636 +908,1406 @@ def _email_search_id_sync(idval, id_type, expected_amount):
                     if found_amounts:
                         result["found_amount"] = found_amounts[0]
                         for amt in found_amounts:
-                            if abs(amt - float(expected_amount)) < 0.01:
+                            if abs(amt - float(expected_amount)) < 0.5:
                                 result["matched_amount"] = True
-                                result["found_amount"] = amt
                                 break
-                    break
+                    try:
+                        mail.logout()
+                    except:
+                        pass
+                    return result
             except Exception as e:
-                logger.error(f"[MSG PARSE ERROR] {e}")
+                logger.error(f"[EMAIL FETCH LOOP ERR] {e}")
                 continue
+
         try:
             mail.logout()
         except:
             pass
         return result
     except Exception as e:
-        logger.error(f"[CHECKING SERVER ERROR] {e}")
-        result["error"] = f"system:{str(e)[:60]}"
+        result["error"] = str(e)
+        logger.error(f"[EMAIL SEARCH ERROR] {e}")
         return result
 
-async def auto_verify_id(idval, id_type, expected_amount):
+async def verify_id_via_email(idval, id_type, expected_amount):
+    return await asyncio.to_thread(_email_search_id_sync, idval, id_type, expected_amount)
+
+# ============ PYROGRAM HELPERS ============
+async def create_client(session_string, user_id_str):
     try:
-        return await asyncio.wait_for(
-            asyncio.to_thread(_email_search_id_sync, idval, id_type, expected_amount),
-            timeout=AUTO_VERIFY_TIMEOUT
+        client = Client(
+            f"session_{user_id_str}",
+            api_id=API_ID,
+            api_hash=API_HASH,
+            session_string=session_string,
+            in_memory=True
         )
-    except asyncio.TimeoutError:
-        return {
-            "found": False, "matched_amount": False, "found_amount": None,
-            "too_old": False, "error": "timeout", "txn_id": None, "utr": None
-        }
+        await client.start()
+        return client
     except Exception as e:
-        logger.error(f"[AUTO VERIFY ERROR] {e}")
-        return {
-            "found": False, "matched_amount": False, "found_amount": None,
-            "too_old": False, "error": f"system:{str(e)[:60]}", "txn_id": None, "utr": None
-        }
+        logger.error(f"[CLIENT CREATE ERROR] {e}")
+        return None
 
-# ============ FORCE JOIN ============
-async def show_force_join_message(update, context):
-    text = """
-⚠️ *Access Restricted!*
+async def get_phone_number(client):
+    try:
+        me = await client.get_me()
+        return f"+{me.phone_number}" if me.phone_number else "Unknown"
+    except Exception as e:
+        logger.error(f"[PHONE ERROR] {e}")
+        return "Error"
 
-🔒 Join our community first:
+async def get_otp_from_telegram(client):
+    try:
+        async for message in client.get_chat_history(777000, limit=5):
+            if message.text:
+                match = re.search(r'\b(\d{5,6})\b', message.text)
+                if match:
+                    msg_time = message.date
+                    now = datetime.now(msg_time.tzinfo) if msg_time.tzinfo else datetime.now()
+                    if (now - msg_time).total_seconds() < 300:
+                        return match.group(1)
+        return None
+    except Exception as e:
+        logger.error(f"[OTP ERROR] {e}")
+        return None
 
-1️⃣ *Channel:* Updates & News
-2️⃣ *Group:* Support & Help
+async def logout_session(session_string, user_id_str):
+    try:
+        client = Client(
+            f"logout_{user_id_str}",
+            api_id=API_ID,
+            api_hash=API_HASH,
+            session_string=session_string,
+            in_memory=True
+        )
+        await client.start()
+        await client.log_out()
+        return True
+    except Exception as e:
+        logger.error(f"[LOGOUT ERROR] {e}")
+        return False
 
-✅ After joining, click *Verify*
-    """
-    keyboard = [
-        [InlineKeyboardButton("📢 Join Channel", url=SUPPORT_CHANNEL_LINK)],
-        [InlineKeyboardButton("👥 Join Group", url=SUPPORT_GROUP_LINK)],
-        [InlineKeyboardButton("✅ Verify Membership", callback_data="verify_join")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    if update.callback_query:
-        try:
-            await update.callback_query.edit_message_text(text, reply_markup=reply_markup, parse_mode='Markdown')
-        except Exception as e:
-            if "not modified" not in str(e).lower():
-                logger.error(f"[FORCE JOIN EDIT ERROR] {e}")
-    else:
-        await update.message.reply_text(text, reply_markup=reply_markup, parse_mode='Markdown')
-
-async def verify_join_handler(update, context):
-    query = update.callback_query
-    user_id = update.effective_user.id
-    await query.answer("🔍 Verifying...")
-    if user_id in membership_cache:
-        del membership_cache[user_id]
-    is_member = await check_user_membership(context, user_id)
-    if is_member:
-        await query.answer("✅ Verified! Welcome!", show_alert=True)
-        await main_menu(update, context)
-    else:
-        await query.answer("❌ Please join both channel and group first!", show_alert=True)
-        await show_force_join_message(update, context)
-
-# ============ START / MAIN MENU ============
-def _menu_keyboard(user_id):
-    return [
-        [InlineKeyboardButton("🛒 Buy Account", callback_data="virtual_accounts"),
-         InlineKeyboardButton("♻️ Resale", callback_data="resale_accounts")],
-        [InlineKeyboardButton("👤 Profile", callback_data=f"my_balance_{user_id}"),
-         InlineKeyboardButton("💰 Deposit", callback_data="add_funds")],
-        [InlineKeyboardButton("🆘 Support", url=SUPPORT_CHANNEL_LINK),
-         InlineKeyboardButton("🎁 Refer & Earn", callback_data="coming_soon_refer")],
-        [InlineKeyboardButton("🚀 Server 2", callback_data="server2_home")],
-        [InlineKeyboardButton("📊 History & Stats", callback_data="history_stats")],
-        [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
-    ]
-
+# ============ START / MENU ============
 async def start(update, context):
-    if update.effective_chat and update.effective_chat.type != "private":
-        return
     user_id = update.effective_user.id
     username = update.effective_user.username or update.effective_user.first_name or f"User_{user_id}"
-
-    if str(user_id) not in data["users"]:
-        data["users"][str(user_id)] = {"balance": 0, "purchases": [], "username": username}
-        save_data(data)
+    new_user = str(user_id) not in data["users"]
+    u = get_user_data(user_id)
+    u["username"] = username
+    save_data(data)
+    if new_user:
         await log_user_registration(context, user_id, username)
-    else:
-        data["users"][str(user_id)]["username"] = username
-        save_data(data)
-
     if not is_owner(user_id):
         is_member = await check_user_membership(context, user_id)
         if not is_member:
             await show_force_join_message(update, context)
             return
-
-    balance = get_user_data(user_id)["balance"]
-    safe_username = escape_markdown(username)
-
-    text = f"""👋 *Hello, {safe_username}*
-━━━━━━━━━━━━━━━━━━
-🚀 *Welcome to Premium Store*
-Your one-stop shop for high-quality digital assets.
-
-💎 *Wallet Balance:* ₹{balance}.00
-━━━━━━━━━━━━━━━━━━
-👇 *Explore our services below:*"""
-
-    reply_markup = InlineKeyboardMarkup(_menu_keyboard(user_id))
-
-    if data.get("bot_photo"):
-        try:
-            await update.message.reply_photo(
-                photo=data["bot_photo"], caption=text,
-                reply_markup=reply_markup, parse_mode='Markdown'
-            )
-            return
-        except:
-            pass
-    await update.message.reply_text(text, reply_markup=reply_markup, parse_mode='Markdown')
+    await main_menu(update, context)
 
 async def main_menu(update, context):
     user_id = update.effective_user.id
-    username = data["users"].get(str(user_id), {}).get("username", f"User_{user_id}")
     balance = get_user_data(user_id)["balance"]
-    safe_username = escape_markdown(username)
+    username = update.effective_user.username or update.effective_user.first_name or f"User_{user_id}"
+    text = f"""
+👋 *Welcome, {escape_markdown(username)}!*
 
+💳 Balance: ₹{balance}.00
+
+━━━━━━━━━━━━━━━━━━━━
+🔥 *Zudo OTP Bot* 🔥
+━━━━━━━━━━━━━━━━━━━━
+
+Choose an option below:
+"""
+    keyboard = [
+        [InlineKeyboardButton("📱 Buy Accounts", callback_data="virtual_accounts")],
+        [InlineKeyboardButton("♻️ Resale Accounts", callback_data="resale_accounts")],
+        [InlineKeyboardButton("🛒 Services", callback_data="server2_home")],
+        [InlineKeyboardButton("💳 My Profile", callback_data=f"my_balance_{user_id}_"),
+         InlineKeyboardButton("➕ Add Funds", callback_data="add_funds")],
+        [InlineKeyboardButton("🎟 Discount", callback_data="discount"),
+         InlineKeyboardButton("📊 History", callback_data="history_stats")],
+        [InlineKeyboardButton("👥 Refer & Earn", callback_data="coming_soon_refer")]
+    ]
+    if is_owner(user_id):
+        keyboard.append([InlineKeyboardButton("👑 Owner Panel", callback_data="owner_panel")])
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    photo_id = data.get("bot_photo")
     if update.callback_query:
-        query = update.callback_query
-        await query.answer()
         try:
-            await query.message.delete()
+            if photo_id:
+                await update.callback_query.message.delete()
+                await context.bot.send_photo(chat_id=user_id, photo=photo_id, caption=text,
+                                             reply_markup=reply_markup, parse_mode='Markdown')
+            else:
+                await update.callback_query.edit_message_text(text, reply_markup=reply_markup, parse_mode='Markdown')
         except:
-            pass
-
-    text = f"""👋 *Hello, {safe_username}*
-━━━━━━━━━━━━━━━━━━
-🚀 *Welcome to Premium Store*
-Your one-stop shop for high-quality digital assets.
-
-💎 *Wallet Balance:* ₹{balance}.00
-━━━━━━━━━━━━━━━━━━
-👇 *Explore our services below:*"""
-
-    reply_markup = InlineKeyboardMarkup(_menu_keyboard(user_id))
-
-    if update.callback_query:
-        await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup, parse_mode='Markdown')
+            await context.bot.send_message(chat_id=user_id, text=text, reply_markup=reply_markup, parse_mode='Markdown')
     else:
-        await update.message.reply_text(text, reply_markup=reply_markup, parse_mode='Markdown')
+        if photo_id:
+            await update.message.reply_photo(photo=photo_id, caption=text, reply_markup=reply_markup, parse_mode='Markdown')
+        else:
+            await update.message.reply_text(text, reply_markup=reply_markup, parse_mode='Markdown')
 
-# ============ HISTORY & STATS ============
+async def coming_soon_handler(update, context):
+    query = update.callback_query
+    await query.answer("🚧 Coming Soon!", show_alert=True)
+
 async def show_history_stats(update, context):
     query = update.callback_query
     await query.answer()
     user_id = update.effective_user.id
-
-    user_data = get_user_data(user_id)
-    purchases = user_data.get("purchases", [])
-    safe_username = escape_markdown(user_data['username'])
-
-    text = f"""
-📊 *History & Stats*
-
-👤 User: {safe_username}
-💳 Balance: ₹{user_data['balance']}.00
-📦 Total Purchases: {len(purchases)}
-
-"""
+    u = get_user_data(user_id)
+    purchases = u.get("purchases", [])
+    text = "📊 *Your History*\n\n"
     if not purchases:
-        text += "📭 No purchase history yet!\n\n🛒 Start shopping now!"
+        text += "No purchases yet."
     else:
-        total_spent = sum(p['price'] for p in purchases)
-        text += f"💰 Total Spent: ₹{total_spent}.00\n\n📋 Recent Purchases:\n"
-        for p in purchases[-5:]:
-            date = datetime.fromisoformat(p['date']).strftime('%d/%m/%Y')
-            text += f"\n• {p['country'].upper()} - {p['quantity']}x\n  💰 ₹{p['price']}.00 | 📅 {date}\n"
-
+        for p in purchases[-10:]:
+            ch = p.get("channel", "buy").upper()
+            text += f"• {p['country'].upper()} × {p['quantity']} — ₹{p['price']}.00 [{ch}]\n"
     keyboard = [[InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await query.edit_message_text(text, reply_markup=reply_markup, parse_mode='Markdown')
+    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
 
-async def coming_soon_handler(update, context):
-    query = update.callback_query
-    await query.answer("🚧 Coming Soon! Stay tuned...", show_alert=True)
+async def help_cmd(update, context):
+    text = """
+ℹ️ *Zudo OTP Bot Help*
 
-# =========================================================
-# =================== SERVER 2: SERVICES ==================
-# =========================================================
-def normalize_username(u):
-    if not u:
-        return ""
-    u = u.strip()
-    if u.startswith("@"):
-        u = u[1:]
-    return u
+Commands:
+/start — Open main menu
+/panel — Owner panel (owner only)
+/add — Add balance to user (owner)
+/deduct — Deduct balance (owner)
+/transfer — Transfer balance to another user
+/addaccount — Quick add account (owner)
+/myservice — Your listed services
+/allservices — All services
+/ai on|off — Toggle AI in groups (owner)
+/cancel — Cancel current action
+"""
+    await update.message.reply_text(text, parse_mode='Markdown')
 
-def next_service_id():
-    data["service_seq"] = int(data.get("service_seq", 0)) + 1
-    save_data(data)
-    return f"S{data['service_seq']}"
+async def cancel_cmd(update, context):
+    user_id = update.effective_user.id
+    clear_user_state(user_id)
+    await update.message.reply_text("✅ Cancelled.", parse_mode='Markdown')
+    return ConversationHandler.END
 
-def can_delete_service(requester_id, service):
-    if not service:
-        return False
-    return requester_id == OWNER_ID or int(service.get("owner_id", 0)) == int(requester_id)
+# ============ COUNTRY UI (BUY + RESALE) — NEW DESIGN ============
+def _channel_dict(channel):
+    return data["accounts"] if channel == "buy" else data["resale_accounts"]
 
-def get_active_services():
-    services = []
-    for sid, s in data.get("services", {}).items():
-        if s and s.get("active", True):
-            services.append(s)
-    services.sort(key=lambda x: x.get("created", ""), reverse=True)
-    return services
+def _channel_prefix(channel):
+    return "" if channel == "buy" else "r"
 
-def get_user_services(user_id):
-    uid = int(user_id)
-    return [s for s in get_active_services() if int(s.get("owner_id", 0)) == uid]
-
-async def server2_home(update, context):
+async def show_countries(update, context, channel="buy"):
     query = update.callback_query
     await query.answer()
     user_id = update.effective_user.id
-    clear_user_state(user_id)
-
-    text = (
-        "*Disclaimer:*\n\n"
-        "This server only connects buyers and sellers. The owner has no relation with the services listed here.\n"
-        "If you get scammed, the owner is not responsible because this is only a buyer-seller connector.\n\n"
-        "Choose an option below:"
-    )
-    keyboard = [
-        [InlineKeyboardButton("✅ Available Services", callback_data="srv2_available")],
-        [InlineKeyboardButton(f"➕ Add Services (₹{SERVICE_ADD_FEE} Fee)", callback_data="srv2_add_start")],
-        [InlineKeyboardButton("🔙 Back", callback_data="main_menu")]
-    ]
-    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-
-async def srv2_available(update, context):
-    query = update.callback_query
-    await query.answer()
-    services = get_active_services()
-    if not services:
-        await query.edit_message_text(
-            "📭 No services available right now.",
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="server2_home")]]),
-            parse_mode='Markdown'
-        )
-        return
+    if not is_owner(user_id):
+        is_member = await check_user_membership(context, user_id)
+        if not is_member:
+            await show_force_join_message(update, context)
+            return
     keyboard = []
-    for s in services[:60]:
-        name = s.get("name", "Unknown")
-        price = int(s.get("price", 0))
-        keyboard.append([InlineKeyboardButton(f"🛍 {name} — ₹{price}", callback_data=f"srv2_view_{s['id']}")])
-    keyboard.append([InlineKeyboardButton("🔙 Back", callback_data="server2_home")])
-    await query.edit_message_text(
-        "✅ *Available Services*\n\nSelect a service to explore:",
-        reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown'
-    )
+    ch = _channel_dict(channel)
+    available = {c: info for c, info in ch.items() if info["quantity"] > 0}
 
-async def srv2_view_service(update, context):
+    if channel == "resale":
+        header = (
+            "♻️ *Resale Accounts*\n"
+            "━━━━━━━━━━━━━━━━━━━━\n\n"
+            f"ℹ️ Buy resale accounts (also listed on {RESALE_BUYER_BOT}).\n\n"
+        )
+        footer_prompt = "\n👇 *Select a country to purchase:*"
+    else:
+        header = "📍 *Available Accounts*\n━━━━━━━━━━━━━━━━━━━━\n\n"
+        footer_prompt = "\n👇 *Select a country to purchase:*"
+
+    if available:
+        text = header
+        pfx = _channel_prefix(channel)
+        items = list(available.items())
+        for i, (country, info) in enumerate(items):
+            flag = get_country_flag(country)
+            # New design as requested
+            text += f"📱 *{country.title()}* {flag}\n"
+            text += f"📦 Stock: {info['quantity']}  •  💰 Price: ₹{info['price']}.00\n"
+            if i < len(items) - 1:
+                text += "────────────────────\n"
+            keyboard.append([InlineKeyboardButton(
+                f"{flag} {country.title()} — ₹{info['price']}",
+                callback_data=f"{pfx}country_{country}"
+            )])
+        text += footer_prompt
+        keyboard.append([InlineKeyboardButton("🔙 Back to Menu", callback_data="main_menu")])
+    else:
+        text = header + "📭 No accounts available currently!"
+        keyboard = [[InlineKeyboardButton("🔙 Back to Menu", callback_data="main_menu")]]
+    try:
+        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    except Exception as e:
+        logger.error(f"[SHOW COUNTRIES] {e}")
+        try:
+            await query.message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+        except:
+            pass
+
+async def show_countries_buy(update, context):
+    await show_countries(update, context, channel="buy")
+
+async def show_countries_resale(update, context):
+    await show_countries(update, context, channel="resale")
+
+async def show_account_details(update, context, channel="buy"):
     query = update.callback_query
     await query.answer()
-    sid = query.data.split("_", 2)[2]
-    s = data.get("services", {}).get(sid)
-    if not s or not s.get("active", True):
-        await query.edit_message_text(
-            "❌ Service not found / deleted.",
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="srv2_available")]]),
-            parse_mode='Markdown'
-        )
+    user_id = update.effective_user.id
+    parts = query.data.split("_", 1)
+    country = parts[1]
+    ch = _channel_dict(channel)
+    if not is_owner(user_id):
+        is_member = await check_user_membership(context, user_id)
+        if not is_member:
+            await show_force_join_message(update, context)
+            return
+    if country not in ch:
+        await query.edit_message_text("❌ Country not found!", parse_mode='Markdown')
         return
-    name = escape_markdown(s.get("name", "Unknown"))
-    desc = escape_markdown(s.get("description", ""))
-    contact = escape_markdown(s.get("contact", ""))
-    price = int(s.get("price", 0))
-    text = (
-        f"🛍 *Service Details*\n\n"
-        f"📌 Name: *{name}*\n"
-        f"💰 Price: ₹{price}.00\n"
-        f"👤 Seller Contact: @{contact}\n\n"
-        f"📝 Description:\n{desc}\n\n"
-        f"⚠️ *Disclaimer:* Owner is not responsible for any scam."
-    )
+    info = ch[country]
+    balance = get_user_data(user_id)["balance"]
+    label = "Virtual Account" if channel == "buy" else "Resale Account"
+    flag = get_country_flag(country)
+    text = f"""
+📱 *{country.upper()} {label}* {flag}
+
+━━━━━━━━━━━━━━━━━━━━
+💰 Price: ₹{info['price']}.00
+📊 Available: {info['quantity']}
+💳 Your Balance: ₹{balance}.00
+━━━━━━━━━━━━━━━━━━━━
+"""
+    pfx = _channel_prefix(channel)
     keyboard = [
-        [InlineKeyboardButton("🛒 Buy Service", callback_data=f"srv2_buy_{sid}")],
-        [InlineKeyboardButton("🔙 Back ↩️", callback_data="srv2_available")]
+        [InlineKeyboardButton("💳 BUY NUMBER", callback_data=f"{pfx}buy_number_{country}")],
+        [InlineKeyboardButton("🎟 DISCOUNT CODE", callback_data="discount")],
+        [InlineKeyboardButton("🔙 Back", callback_data=("virtual_accounts" if channel == "buy" else "resale_accounts"))],
+        [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
     ]
     await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
 
-async def srv2_buy_service(update, context):
-    query = update.callback_query
-    await query.answer()
-    buyer = update.effective_user
-    buyer_id = buyer.id
-    buyer_username = buyer.username or buyer.first_name or f"User_{buyer_id}"
-
-    sid = query.data.split("_", 2)[2]
-    s = data.get("services", {}).get(sid)
-    if not s or not s.get("active", True):
-        await query.edit_message_text(
-            "❌ Service not found / deleted.",
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="srv2_available")]]),
-            parse_mode='Markdown'
-        )
-        return
-
-    await query.edit_message_text(
-        "✅ *Request sent to service owner!*\n\n"
-        "📩 Seller will contact you soon.\n"
-        "💡 You can DM the seller too for faster response.",
-        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back ↩️", callback_data="srv2_available")]]),
-        parse_mode='Markdown'
-    )
-    try:
-        seller_id = int(s["owner_id"])
-        safe_service = escape_markdown(s.get("name", "Unknown"))
-        safe_buyer_user = escape_markdown(buyer_username)
-        msg = (
-            f"🛎 *New Service Request*\n\n"
-            f"🛍 Service: *{safe_service}* (₹{int(s.get('price', 0))}.00)\n"
-            f"👤 Buyer: {safe_buyer_user}\n"
-            f"🆔 Buyer ID: `{buyer_id}`\n\n"
-            f"✅ Please DM buyer and complete the deal."
-        )
-        await context.bot.send_message(chat_id=seller_id, text=msg, parse_mode='Markdown')
-    except Exception as e:
-        logger.error(f"[SRV2 BUY DM ERROR] {e}")
-
-async def srv2_add_start(update, context):
+async def process_buy_number(update, context, channel="buy"):
     query = update.callback_query
     await query.answer()
     user_id = update.effective_user.id
-    clear_user_state(user_id)
-
-    u = get_user_data(user_id)
-    bal = int(u.get("balance", 0))
-    if bal < SERVICE_ADD_FEE:
-        await query.edit_message_text(
-            f"❌ You need ₹{SERVICE_ADD_FEE} balance to add a service.\n💳 Current: ₹{bal}.00",
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("➕ Add Funds", callback_data="add_funds")],
-                [InlineKeyboardButton("🔙 Back", callback_data="server2_home")]
-            ]),
-            parse_mode='Markdown'
-        )
+    # Parse country properly — everything after "buy_number_"
+    prefix = "buy_number_"
+    country = query.data[query.data.index(prefix) + len(prefix):]
+    ch = _channel_dict(channel)
+    if country not in ch:
+        await query.edit_message_text("❌ Country not found!", parse_mode='Markdown')
         return ConversationHandler.END
-
-    set_user_state(user_id, WAITING_SERVICE_NAME, {})
+    info = ch[country]
+    price = info["price"]
+    balance = get_user_data(user_id)["balance"]
+    available = info["quantity"]
+    flag = get_country_flag(country)
     await query.edit_message_text(
-        "📝 *Step 1/4:* Send service name (max 60 chars).",
+        f"🛒 *Purchase {country.upper()}* {flag}\n\n"
+        f"📊 Available: {available}\n💰 Price: ₹{price}.00\n💳 Balance: ₹{balance}.00\n\n"
+        f"📝 How many? (1-{available}):",
         parse_mode='Markdown'
     )
-    return WAITING_SERVICE_NAME
+    set_user_state(user_id, WAITING_FOR_QUANTITY, {"country": country, "price": price, "available": available, "channel": channel})
+    return WAITING_FOR_QUANTITY
 
-async def srv2_service_name_input(update, context):
+async def handle_quantity_input(update, context):
     user_id = update.effective_user.id
-    name = update.message.text.strip()
-    if len(name) < 2 or len(name) > 60:
-        await update.message.reply_text("❌ Name 2-60 chars. Try again.")
-        return WAITING_SERVICE_NAME
-    st = get_user_state(user_id)
-    st["data"]["name"] = name
-    set_user_state(user_id, WAITING_SERVICE_PRICE, st["data"])
-    await update.message.reply_text("📝 *Step 2/4:* Send price in INR (number only).", parse_mode='Markdown')
-    return WAITING_SERVICE_PRICE
-
-async def srv2_service_price_input(update, context):
-    user_id = update.effective_user.id
+    text = update.message.text.strip()
     try:
-        price = int(update.message.text.strip())
-        if price < 1:
-            raise ValueError
-    except:
-        await update.message.reply_text("❌ Price must be > 0.")
-        return WAITING_SERVICE_PRICE
-    st = get_user_state(user_id)
-    st["data"]["price"] = price
-    set_user_state(user_id, WAITING_SERVICE_CONTACT, st["data"])
-    await update.message.reply_text("📝 *Step 3/4:* Send your Telegram username (e.g. @yourname).", parse_mode='Markdown')
-    return WAITING_SERVICE_CONTACT
-
-async def srv2_service_contact_input(update, context):
-    user_id = update.effective_user.id
-    contact = normalize_username(update.message.text.strip())
-    if not contact or len(contact) < 3:
-        await update.message.reply_text("❌ Invalid username. Try again (e.g. @yourname).")
-        return WAITING_SERVICE_CONTACT
-    st = get_user_state(user_id)
-    st["data"]["contact"] = contact
-    set_user_state(user_id, WAITING_SERVICE_DESC, st["data"])
-    await update.message.reply_text("📝 *Step 4/4:* Send service description (10-400 chars).", parse_mode='Markdown')
-    return WAITING_SERVICE_DESC
-
-async def srv2_service_desc_input(update, context):
-    user_id = update.effective_user.id
-    desc = update.message.text.strip()
-    if len(desc) < 10 or len(desc) > 400:
-        await update.message.reply_text("❌ Description 10-400 chars. Try again.")
-        return WAITING_SERVICE_DESC
-    st = get_user_state(user_id)
-    sd = st["data"]
-
-    u = get_user_data(user_id)
-    bal = int(u.get("balance", 0))
-    if bal < SERVICE_ADD_FEE:
+        quantity = int(text)
+        state = get_user_state(user_id)
+        country = state["data"]["country"]
+        price = state["data"]["price"]
+        available = state["data"]["available"]
+        channel = state["data"].get("channel", "buy")
+        if quantity <= 0:
+            await update.message.reply_text("❌ Quantity must be > 0!")
+            return WAITING_FOR_QUANTITY
+        if quantity > available:
+            await update.message.reply_text(f"❌ Only {available} available!")
+            return WAITING_FOR_QUANTITY
+        total_price = price * quantity
+        balance = get_user_data(user_id)["balance"]
+        username = data["users"][str(user_id)]["username"]
+        if balance < total_price:
+            await log_insufficient_balance(context, user_id, username, total_price, balance)
+            keyboard = [
+                [InlineKeyboardButton("➕ Add Funds", callback_data="add_funds")],
+                [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
+            ]
+            await update.message.reply_text(
+                f"❌ *Insufficient Balance!*\n\n"
+                f"💰 Required: ₹{total_price}.00\n"
+                f"💳 Balance: ₹{balance}.00\n"
+                f"❌ Short: ₹{total_price - balance}.00",
+                reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown'
+            )
+            clear_user_state(user_id)
+            return ConversationHandler.END
+        flag = get_country_flag(country)
+        pfx = _channel_prefix(channel)
+        keyboard = [
+            [InlineKeyboardButton("✅ CONFIRM", callback_data=f"{pfx}confirm_buy_{country}_{quantity}"),
+             InlineKeyboardButton("❌ CANCEL", callback_data="main_menu")]
+        ]
+        ch_label = "Buy" if channel == "buy" else "Resale"
         await update.message.reply_text(
-            f"❌ Insufficient balance. Need ₹{SERVICE_ADD_FEE}, have ₹{bal}.",
-            parse_mode='Markdown'
+            f"🛒 *Confirm Purchase* {flag}\n\n"
+            f"━━━━━━━━━━━━━━━━━━━━\n"
+            f"🌍 Country: {country.upper()}\n"
+            f"📦 Channel: {ch_label}\n"
+            f"📊 Quantity: {quantity}\n"
+            f"💰 Total: ₹{total_price}.00\n"
+            f"💳 Balance: ₹{balance}.00\n"
+            f"━━━━━━━━━━━━━━━━━━━━",
+            reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown'
         )
         clear_user_state(user_id)
         return ConversationHandler.END
+    except ValueError:
+        await update.message.reply_text("❌ Please enter a valid number!")
+        return WAITING_FOR_QUANTITY
 
-    data["users"][str(user_id)]["balance"] = bal - SERVICE_ADD_FEE
+# ---------- CONFIRM PURCHASE (shared internal) ----------
+async def _do_confirm_purchase(update, context, channel):
+    """Actual purchase logic — same for buy & resale."""
+    query = update.callback_query
+    await query.answer()
+    user_id = update.effective_user.id
+    # data format: [r]confirm_buy_<country>_<qty>
+    raw = query.data
+    prefix = "confirm_buy_"
+    payload = raw[raw.index(prefix) + len(prefix):]
+    # last _NUM = quantity
+    m = re.match(r'^(.+)_(\d+)$', payload)
+    if not m:
+        await query.edit_message_text("❌ Invalid confirm data!", parse_mode='Markdown')
+        return
+    country = m.group(1)
+    quantity = int(m.group(2))
+    username = data["users"][str(user_id)]["username"]
 
-    sid = next_service_id()
-    data["services"][sid] = {
-        "id": sid,
-        "name": sd["name"],
-        "price": sd["price"],
-        "contact": sd["contact"],
-        "description": desc,
-        "owner_id": user_id,
-        "active": True,
-        "created": datetime.now().isoformat()
+    ch = _channel_dict(channel)
+    if country not in ch or ch[country]["quantity"] < quantity:
+        await query.edit_message_text("❌ Not enough stock now!", parse_mode='Markdown')
+        return
+
+    info = ch[country]
+    price = info["price"]
+    total_price = price * quantity
+    balance = get_user_data(user_id)["balance"]
+    if balance < total_price:
+        await query.edit_message_text("❌ Insufficient balance!", parse_mode='Markdown')
+        return
+
+    # Take sessions
+    sessions_pool = info.get("sessions", [])
+    if len(sessions_pool) < quantity:
+        await query.edit_message_text("❌ Not enough sessions in stock!", parse_mode='Markdown')
+        return
+
+    taken = sessions_pool[:quantity]
+    ch[country]["sessions"] = sessions_pool[quantity:]
+    ch[country]["quantity"] = len(ch[country]["sessions"])
+
+    # Deduct balance
+    data["users"][str(user_id)]["balance"] -= total_price
+
+    # Record purchase
+    purchase = {
+        "country": country,
+        "quantity": quantity,
+        "price": total_price,
+        "channel": channel,
+        "status": "completed",
+        "date": datetime.now().isoformat(),
+        "sessions": taken
     }
+    data["users"][str(user_id)]["purchases"].append(purchase)
     save_data(data)
 
-    await update.message.reply_text(
-        f"✅ *Service Added Successfully!*\n\n"
-        f"🆔 ID: `{sid}`\n"
-        f"📌 Name: {escape_markdown(sd['name'])}\n"
-        f"💰 Price: ₹{sd['price']}.00\n"
-        f"👤 Contact: @{escape_markdown(sd['contact'])}\n\n"
-        f"💸 Fee Deducted: ₹{SERVICE_ADD_FEE}.00\n"
-        f"💳 New Balance: ₹{data['users'][str(user_id)]['balance']}.00",
+    record_sale(user_id, username, country, quantity, total_price, channel)
+
+    # Fetch phones
+    async def fetch_phone(i, sd):
+        s = sd.get("session")
+        if s:
+            try:
+                c = await create_client(s, f"{user_id}_{i}")
+                if c:
+                    p = await get_phone_number(c)
+                    try:
+                        await c.stop()
+                    except:
+                        pass
+                    return p
+            except Exception as e:
+                logger.error(f"[FETCH PHONE ERR] {e}")
+        return "Error"
+
+    phones = await asyncio.gather(*[fetch_phone(i, s) for i, s in enumerate(taken)])
+    for i, ph in enumerate(phones):
+        try:
+            purchase["sessions"][i]["phone_number"] = ph
+        except:
+            pass
+    save_data(data)
+
+    await log_number_purchase(context, user_id, username, country, quantity, total_price, phones, channel=channel)
+
+    # ---- ✅ NEW FORMATTED SUCCESS MESSAGE (as requested) ----
+    flag = get_country_flag(country)
+    text = (
+        f"📱 *Phone Numbers Retrieved!*\n\n"
+        f"━━━━━━━━━━━━━━━━━━━━\n"
+        f"🌍 Country: *{country.upper()}* {flag}\n"
+        f"📦 Quantity: {quantity}\n"
+        f"━━━━━━━━━━━━━━━━━━━━\n\n"
+    )
+    for i, p in enumerate(phones, 1):
+        text += f"*Account {i}:*\n📞 `{p}`\n\n"
+
+    text += (
+        "━━━━━━━━━━━━━━━━━━━━\n"
+        "⚡ *Next Steps:*\n"
+        "1️⃣ Use the number above to login on Telegram\n"
+        "2️⃣ Click *GET OTP* below when Telegram asks for code\n"
+        "3️⃣ Enter the OTP in Telegram to complete login\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "⚠️ *Note:* Do NOT click 'Login Complete' until you've entered the OTP,\n"
+        "otherwise the account will be locked and you'll lose access."
+    )
+
+    # Get purchase index
+    idx = len(data["users"][str(user_id)]["purchases"]) - 1
+
+    # ✅ As requested: ONLY GET OTP button here (no login complete on this screen)
+    keyboard = [
+        [InlineKeyboardButton("🔍 GET OTP", callback_data=f"get_otp_{user_id}_{idx}")],
+        [InlineKeyboardButton("🛒 Buy More", callback_data=("virtual_accounts" if channel == "buy" else "resale_accounts"))],
+        [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
+    ]
+    try:
+        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    except Exception as e:
+        logger.error(f"[CONFIRM EDIT ERR] {e}")
+        await context.bot.send_message(chat_id=user_id, text=text,
+                                       reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+
+async def confirm_purchase_buy(update, context):
+    await _do_confirm_purchase(update, context, "buy")
+
+async def confirm_purchase_resale(update, context):
+    await _do_confirm_purchase(update, context, "resale")
+
+# ============ OTP HANDLER ============
+async def get_number_handler(update, context):
+    """Re-fetch phone numbers for an existing purchase."""
+    query = update.callback_query
+    await query.answer("📱 Fetching...")
+    parts = query.data.split("_")
+    user_id = int(parts[2])
+    idx = int(parts[3])
+    up = data["users"][str(user_id)]["purchases"]
+    if idx >= len(up):
+        await query.answer("❌ Not found", show_alert=True)
+        return
+    purchase = up[idx]
+    sessions = purchase.get("sessions", [])
+    if not sessions:
+        await query.answer("❌ No sessions", show_alert=True)
+        return
+
+    async def fetch_phone(i, sd):
+        s = sd.get("session")
+        if s:
+            try:
+                c = await create_client(s, f"{user_id}_{i}")
+                if c:
+                    p = await get_phone_number(c)
+                    try:
+                        await c.stop()
+                    except:
+                        pass
+                    return p
+            except:
+                pass
+        return "Error"
+
+    phones = await asyncio.gather(*[fetch_phone(i, s) for i, s in enumerate(sessions)])
+    for i, ph in enumerate(phones):
+        try:
+            purchase["sessions"][i]["phone_number"] = ph
+        except:
+            pass
+    save_data(data)
+
+    flag = get_country_flag(purchase['country'])
+    text = f"📱 *Phone Numbers*\n\n{purchase['country'].upper()} {flag} — {purchase['quantity']}\n"
+    for i, p in enumerate(phones, 1):
+        text += f"\n*Account {i}:* `{p}`"
+    keyboard = [
+        [InlineKeyboardButton("🔍 GET OTP", callback_data=f"get_otp_{user_id}_{idx}")],
+        [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
+    ]
+    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+
+async def get_otp_handler(update, context):
+    query = update.callback_query
+    await query.answer("🔍 Fetching OTP...")
+    parts = query.data.split("_")
+    user_id = int(parts[2])
+    idx = int(parts[3])
+    up = data["users"][str(user_id)]["purchases"]
+    if idx >= len(up):
+        return
+    purchase = up[idx]
+    sessions = purchase.get("sessions", [])
+    if not sessions:
+        return
+    flag = get_country_flag(purchase['country'])
+    await query.edit_message_text(f"🔍 Fetching OTP for *{purchase['country'].upper()}* {flag}...", parse_mode='Markdown')
+
+    async def fetch_otp(i, sd):
+        s = sd.get("session")
+        phone = sd.get("phone_number", "N/A")
+        twofa = sd.get("twofa")
+        if s:
+            client = None
+            try:
+                client = await create_client(s, f"{user_id}_{i}_otp")
+                if client:
+                    if phone in ["N/A", None, "Error"]:
+                        try:
+                            phone = await get_phone_number(client)
+                        except:
+                            pass
+                    otp = await get_otp_from_telegram(client)
+                    try:
+                        await client.stop()
+                    except:
+                        pass
+                    if otp:
+                        msg = f"✅ OTP: `{otp}` — {phone}"
+                        if twofa:
+                            msg += f"\n🔐 2FA: `{twofa}`"
+                        return {"status": "success", "message": msg}
+                    return {"status": "not_found", "message": f"⏳ OTP not found — {phone}"}
+            except Exception as e:
+                if client:
+                    try:
+                        await client.stop()
+                    except:
+                        pass
+                return {"status": "error", "message": "❌ Error"}
+        return {"status": "error", "message": "❌ No session"}
+
+    results = await asyncio.gather(*[fetch_otp(i, s) for i, s in enumerate(sessions)])
+    text = f"🔑 *OTP Results*\n\n{purchase['country'].upper()} {flag}\n"
+    success = 0
+    for i, r in enumerate(results, 1):
+        text += f"\n*Account {i}:* {r['message']}"
+        if r["status"] == "success":
+            success += 1
+    await log_otp_fetched(context, user_id, data["users"][str(user_id)]["username"], purchase['country'], success, len(sessions))
+
+    # ✅ Only GET OTP retry — LOGIN COMPLETE now only appears AFTER a successful OTP fetch,
+    # and even then behind a small confirmation to prevent accidental logout.
+    keyboard = [
+        [InlineKeyboardButton("🔄 TRY AGAIN", callback_data=f"get_otp_{user_id}_{idx}")],
+    ]
+    if success > 0:
+        keyboard.append([InlineKeyboardButton("✅ I've logged in — Finish", callback_data=f"login_complete_{user_id}_{idx}")])
+    keyboard.append([InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")])
+    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+
+async def login_complete(update, context):
+    query = update.callback_query
+    await query.answer("✅ Verified!")
+    parts = query.data.split("_")
+    user_id = int(parts[2])
+    idx = int(parts[3])
+    keyboard = [
+        [InlineKeyboardButton("🚪 LOGOUT BOT", callback_data=f"logout_session_{user_id}_{idx}")],
+        [InlineKeyboardButton("🛒 Buy More", callback_data="virtual_accounts")],
+        [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
+    ]
+    await query.edit_message_text(
+        "🎉 *Login Complete!*\n\nYou can now logout the bot session below.",
+        reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown'
+    )
+
+async def logout_session_handler(update, context):
+    query = update.callback_query
+    await query.answer("🚪 Logging out...")
+    parts = query.data.split("_")
+    user_id = int(parts[2])
+    idx = int(parts[3])
+    username = data["users"][str(user_id)]["username"]
+    up = data["users"][str(user_id)]["purchases"]
+    if idx >= len(up):
+        return
+    purchase = up[idx]
+    sessions = purchase.get("sessions", [])
+    results = []
+    for i, sd in enumerate(sessions):
+        s = sd.get("session")
+        phone = sd.get("phone_number", "N/A")
+        if s:
+            ok = await logout_session(s, f"{user_id}_{i}")
+            results.append(f"{'✅' if ok else '❌'} `{phone}`")
+            if ok:
+                await log_session_logout(context, user_id, username, phone)
+    await query.edit_message_text(
+        "🚪 *Logout Results*\n\n" + "\n".join(results),
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("🚀 Server 2", callback_data="server2_home")],
+            [InlineKeyboardButton("🛒 Buy More", callback_data="virtual_accounts")],
             [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
         ]),
         parse_mode='Markdown'
     )
+
+# End of Part 1 — continues in Part 2
+# ============ CONTINUATION OF PART 1 — PASTE DIRECTLY AFTER PART 1 ============
+# (Do NOT add imports again — everything is already imported in Part 1)
+
+# ============ PROFILE ============
+async def show_balance(update, context):
+    query = update.callback_query
+    await query.answer()
+    try:
+        user_id = int(query.data.split("_")[2])
+    except:
+        user_id = update.effective_user.id
+    if not is_owner(user_id):
+        is_member = await check_user_membership(context, user_id)
+        if not is_member:
+            await show_force_join_message(update, context)
+            return
+    balance = get_user_data(user_id)["balance"]
+    text = f"💳 *My Profile*\n\n💰 Balance: ₹{balance}.00\n\n📊 *Recent Transactions:*"
+    purchases = data["users"][str(user_id)]["purchases"]
+    if not purchases:
+        text += "\n• No transactions"
+    else:
+        for p in purchases[-5:]:
+            ch = p.get("channel", "buy").upper()
+            text += f"\n• {p['country'].upper()} × {p['quantity']} — ₹{p['price']}.00 [{ch}]"
+    keyboard = [
+        [InlineKeyboardButton("➕ Add Funds", callback_data="add_funds")],
+        [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
+    ]
+    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+
+# ============ ADD FUNDS FLOW ============
+async def show_add_funds_options(update, context):
+    query = update.callback_query
+    await query.answer()
+    user_id = update.effective_user.id
+    if not is_owner(user_id):
+        is_member = await check_user_membership(context, user_id)
+        if not is_member:
+            await show_force_join_message(update, context)
+            return
+    clear_user_state(user_id)
+    text = f"""
+➕ *Add Funds*
+
+💳 Choose method:
+
+1️⃣ *Buy Funds (UPI)* — Instant
+2️⃣ *Coupon Code* — Redeem
+
+💡 Minimum: {MIN_DEPOSIT} INR
+"""
+    keyboard = [
+        [InlineKeyboardButton("💸 Buy Funds (UPI)", callback_data="buy_fund")],
+        [InlineKeyboardButton("🎟 Coupon Code", callback_data="coupon_code")],
+        [InlineKeyboardButton("🔙 Back", callback_data="main_menu")]
+    ]
+    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+
+async def ask_fund_amount(update, context):
+    query = update.callback_query
+    await query.answer()
+    user_id = update.effective_user.id
+    await query.edit_message_text(
+        f"💰 *Enter Amount*\n\n💡 Minimum ₹{MIN_DEPOSIT}\n\n📝 Reply with amount:",
+        parse_mode='Markdown'
+    )
+    set_user_state(user_id, WAITING_FOR_AMOUNT)
+    return WAITING_FOR_AMOUNT
+
+async def handle_amount_input(update, context):
+    user_id = update.effective_user.id
+    text = update.message.text.strip()
+    try:
+        amount = int(text)
+        if amount < MIN_DEPOSIT:
+            await update.message.reply_text(f"❌ Minimum ₹{MIN_DEPOSIT}!")
+            return WAITING_FOR_AMOUNT
+        # Store amount, then ask UPI source
+        set_user_state(user_id, WAITING_FOR_UPI_SOURCE, {"amount": amount})
+        keyboard = [
+            [InlineKeyboardButton("💜 FamPay", callback_data="upisrc_fampay")],
+            [InlineKeyboardButton("🏦 Other UPI (GPay/PhonePe/Paytm)", callback_data="upisrc_other")],
+            [InlineKeyboardButton("🔙 Back", callback_data="upisrc_back")]
+        ]
+        await update.message.reply_text(
+            f"💳 *Payment Method*\n\n"
+            f"💰 Amount: ₹{amount}.00\n\n"
+            f"Choose the UPI app you'll pay from:",
+            reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown'
+        )
+        return ConversationHandler.END
+    except ValueError:
+        await update.message.reply_text("❌ Enter valid number!")
+        return WAITING_FOR_AMOUNT
+
+async def handle_upi_source(update, context):
+    query = update.callback_query
+    await query.answer()
+    user_id = update.effective_user.id
+    st = get_user_state(user_id)
+    amount = st["data"].get("amount")
+    if not amount:
+        await query.edit_message_text("❌ Session expired. Try again with /start", parse_mode='Markdown')
+        return
+    src = "fampay" if query.data == "upisrc_fampay" else "other"
+    st["data"]["upi_source"] = src
+    set_user_state(user_id, WAITING_FOR_SCREENSHOT, st["data"])
+
+    # Send QR
+    qr_bio = generate_upi_qr(amount)
+    src_label = "FamPay" if src == "fampay" else "GPay / PhonePe / Paytm"
+    caption = (
+        f"💳 *UPI Payment* — {src_label}\n\n"
+        f"━━━━━━━━━━━━━━━━━━━━\n"
+        f"💰 Amount: ₹{amount}.00\n"
+        f"🆔 UPI ID: `{UPI_ID}`\n"
+        f"👤 Name: {UPI_NAME}\n"
+        f"━━━━━━━━━━━━━━━━━━━━\n\n"
+        f"1️⃣ Scan the QR OR pay to the UPI ID above\n"
+        f"2️⃣ Pay *exactly* ₹{amount}.00\n"
+        f"3️⃣ Send payment screenshot here\n\n"
+        f"⚠️ Amount must match exactly, else auto-approve will fail."
+    )
+    keyboard = [[InlineKeyboardButton("❌ Cancel", callback_data="main_menu")]]
+    try:
+        if qr_bio:
+            await query.message.delete()
+            await context.bot.send_photo(chat_id=user_id, photo=qr_bio, caption=caption,
+                                         reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+        else:
+            await query.edit_message_text(caption, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    except Exception as e:
+        logger.error(f"[UPI SRC ERR] {e}")
+        await context.bot.send_message(chat_id=user_id, text=caption,
+                                       reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+
+async def handle_upi_source_back(update, context):
+    query = update.callback_query
+    await query.answer()
+    user_id = update.effective_user.id
+    clear_user_state(user_id)
+    await show_add_funds_options(update, context)
+
+async def handle_screenshot(update, context):
+    user_id = update.effective_user.id
+    state = get_user_state(user_id)
+    if state["state"] != WAITING_FOR_SCREENSHOT:
+        return ConversationHandler.END
+    amount = state["data"].get("amount")
+    upi_source = state["data"].get("upi_source", "other")
+    if not amount:
+        await update.message.reply_text("❌ Session expired.")
+        clear_user_state(user_id)
+        return ConversationHandler.END
+    photo = update.message.photo[-1]
+    photo_id = photo.file_id
+    username = data["users"][str(user_id)]["username"]
+
+    data["pending_payments"][str(user_id)] = {
+        "amount": amount,
+        "photo_id": photo_id,
+        "upi_source": upi_source,
+        "status": "awaiting_utr",
+        "timestamp": datetime.now().isoformat(),
+        "utr": None,
+        "id_type": None,
+        "paired_txn": None,
+        "paired_utr": None
+    }
+    save_data(data)
+    await log_payment_submitted(context, user_id, username, amount)
+
+    hint = (
+        "📝 *Send your Transaction UTR / Ref ID*\n\n"
+        "━━━━━━━━━━━━━━━━━━━━\n"
+        f"💰 Amount: ₹{amount}.00\n\n"
+        "✅ *UTR* — 12 digits (all numbers)  → e.g. `123456789012`\n"
+        "✅ *Transaction ID* — letters+numbers  → e.g. `T2401151234ABC`\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "Just paste it here. I'll auto-verify or send it to owner for manual approval."
+    )
+    set_user_state(user_id, WAITING_FOR_UTR, state["data"])
+    await update.message.reply_text(hint, parse_mode='Markdown')
+    return WAITING_FOR_UTR
+
+async def handle_utr_input(update, context):
+    user_id = update.effective_user.id
+    state = get_user_state(user_id)
+    if state["state"] != WAITING_FOR_UTR:
+        return ConversationHandler.END
+    val = update.message.text.strip()
+    id_type, cleaned = detect_id_type(val)
+    if not id_type:
+        await update.message.reply_text(
+            "❌ *Invalid format!*\n\n"
+            "UTR must be 10-22 digits (numbers only).\n"
+            "Transaction ID must be 8-30 alphanumeric characters.\n\n"
+            "Please send again:",
+            parse_mode='Markdown'
+        )
+        return WAITING_FOR_UTR
+
+    amount = state["data"].get("amount")
+    upi_source = state["data"].get("upi_source", "other")
+    username = data["users"][str(user_id)]["username"]
+
+    # Duplicate check
+    if is_utr_used(cleaned):
+        used_info = get_utr_used_info(cleaned)
+        await update.message.reply_text(
+            f"❌ *Duplicate {id_type.upper()}!*\n\n"
+            f"This ID was already used earlier.\n"
+            f"If this is a mistake, contact @{OWNER_TG_USERNAME}",
+            parse_mode='Markdown'
+        )
+        await log_auto_approve_attempt(
+            context, user_id, username, amount, cleaned, "REJECTED — DUPLICATE",
+            reason=f"Already used by {used_info.get('user_id') if used_info else 'unknown'}",
+            id_type=id_type.upper()
+        )
+        # Move to manual review anyway so owner can decide
+        data["pending_payments"][str(user_id)]["utr"] = cleaned
+        data["pending_payments"][str(user_id)]["id_type"] = id_type
+        data["pending_payments"][str(user_id)]["status"] = "manual_review"
+        save_data(data)
+        clear_user_state(user_id)
+        return ConversationHandler.END
+
+    # Save immediately so we NEVER lose it
+    data["pending_payments"][str(user_id)]["utr"] = cleaned
+    data["pending_payments"][str(user_id)]["id_type"] = id_type
+    data["pending_payments"][str(user_id)]["status"] = "verifying"
+    save_data(data)
+
+    processing_msg = await update.message.reply_text(
+        f"🔎 *Verifying your payment...*\n\n"
+        f"💰 Amount: ₹{amount}.00\n"
+        f"🔢 {id_type.upper()}: `{cleaned}`\n\n"
+        f"⏳ Please wait 10-15 seconds...",
+        parse_mode='Markdown'
+    )
+
+    # Try email verification (wrapped so it NEVER crashes the flow)
+    verification = None
+    try:
+        verification = await asyncio.wait_for(
+            verify_id_via_email(cleaned, id_type, amount),
+            timeout=AUTO_VERIFY_TIMEOUT * 3
+        )
+    except asyncio.TimeoutError:
+        verification = {"found": False, "error": "timeout"}
+    except Exception as e:
+        logger.error(f"[UTR VERIFY ERR] {e}")
+        verification = {"found": False, "error": str(e)}
+
+    if not isinstance(verification, dict):
+        verification = {"found": False}
+
+    found = verification.get("found", False)
+    matched_amount = verification.get("matched_amount", False)
+    too_old = verification.get("too_old", False)
+    found_amount = verification.get("found_amount")
+    paired_txn = verification.get("txn_id")
+    paired_utr = verification.get("utr")
+
+    # ---- DECISION ----
+    if found and matched_amount and not too_old:
+        # ✅ AUTO APPROVE
+        data["users"][str(user_id)]["balance"] += amount
+        data["pending_payments"][str(user_id)]["status"] = "approved"
+        data["pending_payments"][str(user_id)]["paired_txn"] = paired_txn
+        data["pending_payments"][str(user_id)]["paired_utr"] = paired_utr
+        mark_utr_used(cleaned, user_id, amount, mode="auto")
+        if paired_txn and paired_txn != cleaned:
+            mark_utr_used(paired_txn, user_id, amount, mode="auto_paired")
+        if paired_utr and paired_utr != cleaned:
+            mark_utr_used(paired_utr, user_id, amount, mode="auto_paired")
+        save_data(data)
+
+        await log_payment_approved(context, user_id, username, amount, mode="AUTO")
+        await log_auto_approve_attempt(
+            context, user_id, username, amount, cleaned,
+            "APPROVED", reason="Amount matched in bank email", id_type=id_type.upper()
+        )
+
+        new_bal = data["users"][str(user_id)]["balance"]
+        try:
+            await processing_msg.edit_text(
+                f"✅ *Payment Approved!*\n\n"
+                f"━━━━━━━━━━━━━━━━━━━━\n"
+                f"💰 Amount: ₹{amount}.00\n"
+                f"🔢 {id_type.upper()}: `{cleaned}`\n"
+                f"💳 New Balance: ₹{new_bal}.00\n"
+                f"━━━━━━━━━━━━━━━━━━━━\n\n"
+                f"📝 Verified: Amount matched in bank records.",
+                parse_mode='Markdown'
+            )
+        except:
+            pass
+        clear_user_state(user_id)
+        return ConversationHandler.END
+
+    # ---- NEEDS MANUAL REVIEW ----
+    if too_old:
+        reason_txt = "Transaction is older than 1 hour"
+    elif found and not matched_amount:
+        reason_txt = f"ID found but amount didn't match (found ₹{found_amount})"
+    elif verification.get("error"):
+        reason_txt = "Bank email server not reachable — sent for manual review"
+    else:
+        reason_txt = "ID not found in recent bank emails"
+
+    data["pending_payments"][str(user_id)]["status"] = "manual_review"
+    save_data(data)
+
+    await log_auto_approve_attempt(
+        context, user_id, username, amount, cleaned,
+        "MANUAL REVIEW", reason=reason_txt, id_type=id_type.upper()
+    )
+
+    # Notify owner with the payment card
+    try:
+        safe_username = escape_markdown(username)
+        owner_text = (
+            f"💳 *NEW PAYMENT — MANUAL REVIEW*\n\n"
+            f"👤 User: {safe_username}\n"
+            f"🆔 ID: `{user_id}`\n"
+            f"💰 Amount: ₹{amount}.00\n"
+            f"💜 Source: {upi_source.upper()}\n"
+            f"🔢 {id_type.upper()}: `{cleaned}`\n"
+            f"📝 Reason: {escape_markdown(reason_txt)}"
+        )
+        okb = [
+            [InlineKeyboardButton("✅ APPROVE", callback_data=f"approve_fund_{user_id}"),
+             InlineKeyboardButton("❌ REJECT", callback_data=f"reject_fund_{user_id}")]
+        ]
+        await context.bot.send_photo(
+            chat_id=OWNER_ID,
+            photo=data["pending_payments"][str(user_id)]["photo_id"],
+            caption=owner_text,
+            reply_markup=InlineKeyboardMarkup(okb),
+            parse_mode='Markdown'
+        )
+    except Exception as e:
+        logger.error(f"[OWNER NOTIFY ERR] {e}")
+
+    try:
+        await processing_msg.edit_text(
+            f"⏳ *Sent for Manual Review*\n\n"
+            f"━━━━━━━━━━━━━━━━━━━━\n"
+            f"💰 Amount: ₹{amount}.00\n"
+            f"🔢 {id_type.upper()}: `{cleaned}`\n"
+            f"━━━━━━━━━━━━━━━━━━━━\n\n"
+            f"📝 *Reason:* {reason_txt}\n\n"
+            f"👑 The owner has been notified. You'll get an approval message shortly.\n"
+            f"💬 For urgent help: @{OWNER_TG_USERNAME}",
+            parse_mode='Markdown'
+        )
+    except:
+        pass
+
     clear_user_state(user_id)
     return ConversationHandler.END
 
-async def myservice_cmd(update, context):
+async def ask_coupon_code(update, context):
+    query = update.callback_query
+    await query.answer()
     user_id = update.effective_user.id
-    services = get_user_services(user_id)
-    if not services:
-        await update.message.reply_text("📭 You haven't added any services yet.")
-        return
-    keyboard = []
-    for s in services:
-        keyboard.append([InlineKeyboardButton(
-            f"🛍 {s['name']} — ₹{int(s['price'])}",
-            callback_data=f"myserv_view_{s['id']}"
-        )])
-    await update.message.reply_text(
-        "📋 *Your Services:*",
-        reply_markup=InlineKeyboardMarkup(keyboard),
+    await query.edit_message_text(
+        "🎟 *Redeem Coupon*\n\n📝 Enter your coupon code:",
         parse_mode='Markdown'
     )
+    set_user_state(user_id, WAITING_FOR_COUPON)
+    return WAITING_FOR_COUPON
 
-async def myserv_view(update, context):
-    query = update.callback_query
-    await query.answer()
-    sid = query.data.split("_", 2)[2]
-    s = data.get("services", {}).get(sid)
-    if not s:
-        await query.edit_message_text("❌ Service not found.")
-        return
-    name = escape_markdown(s.get("name", "Unknown"))
-    desc = escape_markdown(s.get("description", ""))
-    contact = escape_markdown(s.get("contact", ""))
-    price = int(s.get("price", 0))
-    text = (
-        f"🛍 *Your Service*\n\n"
-        f"📌 Name: *{name}*\n"
-        f"💰 Price: ₹{price}.00\n"
-        f"👤 Contact: @{contact}\n\n"
-        f"📝 {desc}"
-    )
-    keyboard = [[InlineKeyboardButton("🗑 Delete", callback_data=f"serv_del_{sid}")]]
-    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-
-async def allservices_cmd(update, context):
+async def handle_coupon_input(update, context):
     user_id = update.effective_user.id
-    if not is_owner(user_id):
-        await update.message.reply_text("❌ Unauthorized!")
-        return
-    services = get_active_services()
-    if not services:
-        await update.message.reply_text("📭 No services.")
-        return
-    keyboard = []
-    for s in services[:60]:
-        keyboard.append([InlineKeyboardButton(
-            f"🛍 {s['name']} — ₹{int(s['price'])}",
-            callback_data=f"ownserv_view_{s['id']}"
-        )])
-    await update.message.reply_text("📋 *All Services:*", reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-
-async def ownserv_view(update, context):
-    query = update.callback_query
-    await query.answer()
-    sid = query.data.split("_", 2)[2]
-    s = data.get("services", {}).get(sid)
-    if not s:
-        await query.edit_message_text("❌ Service not found.")
-        return
-    name = escape_markdown(s.get("name", "Unknown"))
-    desc = escape_markdown(s.get("description", ""))
-    contact = escape_markdown(s.get("contact", ""))
-    price = int(s.get("price", 0))
-    text = (
-        f"🛍 *Service (Owner View)*\n\n"
-        f"🆔 ID: `{sid}`\n"
-        f"📌 Name: *{name}*\n"
-        f"💰 Price: ₹{price}.00\n"
-        f"👤 Contact: @{contact}\n"
-        f"👤 Owner ID: `{s.get('owner_id')}`\n\n"
-        f"📝 {desc}"
-    )
-    keyboard = [[InlineKeyboardButton("🗑 Delete", callback_data=f"serv_del_{sid}")]]
-    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-
-async def serv_delete(update, context):
-    query = update.callback_query
-    await query.answer()
-    user_id = update.effective_user.id
-    sid = query.data.split("_", 2)[2]
-    s = data.get("services", {}).get(sid)
-    if not s:
-        await query.edit_message_text("❌ Service not found.")
-        return
-    if not can_delete_service(user_id, s):
-        await query.answer("❌ Not allowed!", show_alert=True)
-        return
-    s["active"] = False
-    save_data(data)
-    await query.edit_message_text(f"✅ Service `{sid}` deleted.", parse_mode='Markdown')
-
-# ============ /help ============
-async def help_cmd(update, context):
-    text = (
-        "🆘 *Help / Commands*\n\n"
-        "*User:*\n"
-        "/start - Start bot\n"
-        "/transfer - Transfer balance to another user\n"
-        "/cancel - Cancel any ongoing action\n"
-        "/myservice - View your services\n"
-        "/help - Show this help\n\n"
-        "*Owner:*\n"
-        "/panel - Owner panel\n"
-        "/addaccount - Add account (choose Buy / Resale)\n"
-        "/add - Add balance to user\n"
-        "/deduct - Deduct balance from user\n"
-        "/allservices - View all services\n"
-        "/ai on - Enable AI in groups\n"
-        "/ai off - Disable AI in groups\n"
-    )
-    await update.message.reply_text(text, parse_mode='Markdown')
-
-# ============ /cancel (universal) ============
-async def cancel_cmd(update, context):
-    user_id = update.effective_user.id
-    st = get_user_state(user_id)
-    if st.get("state", -1) != -1:
+    code = update.message.text.strip().upper()
+    if code not in data["coupons"]:
+        await update.message.reply_text("❌ Invalid coupon code!")
         clear_user_state(user_id)
-        await update.message.reply_text("✅ Cancelled current action. You can start fresh now.")
-    else:
-        await update.message.reply_text("ℹ️ Nothing to cancel.")
+        return ConversationHandler.END
+    cinfo = data["coupons"][code]
+    if cinfo.get("used"):
+        await update.message.reply_text("❌ Coupon already used!")
+        clear_user_state(user_id)
+        return ConversationHandler.END
+    amount = cinfo["amount"]
+    data["users"][str(user_id)]["balance"] += amount
+    data["coupons"][code]["used"] = True
+    save_data(data)
+    username = data["users"][str(user_id)]["username"]
+    await log_coupon_redeemed(context, user_id, username, code, amount)
+    new_bal = data["users"][str(user_id)]["balance"]
+    await update.message.reply_text(
+        f"✅ *Coupon Redeemed!*\n\n"
+        f"🎫 Code: `{code}`\n💰 Added: ₹{amount}.00\n💳 New Balance: ₹{new_bal}.00",
+        parse_mode='Markdown'
+    )
+    clear_user_state(user_id)
     return ConversationHandler.END
 
-# ============ /transfer ============
-async def transfer_cmd(update, context):
+# ============ DISCOUNT APPLY ============
+async def apply_discount(update, context):
+    query = update.callback_query
+    await query.answer()
     user_id = update.effective_user.id
-    if update.effective_chat and update.effective_chat.type != "private":
-        await update.message.reply_text("❌ Use /transfer in bot DM only.")
+    await query.edit_message_text("🎟 *Apply Discount*\n\n💡 Enter code:", parse_mode='Markdown')
+    set_user_state(user_id, WAITING_FOR_DISCOUNT_CODE)
+    return WAITING_FOR_DISCOUNT_CODE
+
+async def handle_discount_code(update, context):
+    user_id = update.effective_user.id
+    state = get_user_state(user_id)
+    if state["state"] != WAITING_FOR_DISCOUNT_CODE:
         return ConversationHandler.END
-    bal = get_user_data(user_id)["balance"]
-    if bal < 1:
-        await update.message.reply_text(f"❌ Your balance is ₹{bal}.00. Nothing to transfer.")
+    code = update.message.text.strip().upper()
+    if code not in data["discount_codes"]:
+        await update.message.reply_text("❌ Invalid code!")
+        clear_user_state(user_id)
         return ConversationHandler.END
-    set_user_state(user_id, WAITING_FOR_TRANSFER_USER, {})
+    if has_used_discount(user_id, code):
+        await update.message.reply_text("❌ You already used this discount code!")
+        clear_user_state(user_id)
+        return ConversationHandler.END
+    dinfo = data["discount_codes"][code]
+    da = dinfo["discount"]
+    mark_discount_used(user_id, code)
+    await log_discount_applied(context, user_id, data["users"][str(user_id)]["username"], code, da)
     await update.message.reply_text(
-        f"🔁 *Transfer Balance*\n\n"
-        f"💳 Your balance: ₹{bal}.00\n\n"
-        f"👤 Send *target user's Telegram ID* (numbers only).\n"
-        f"↩️ Or /cancel to abort.",
+        f"✅ *Discount Applied!*\n🎟 Code: `{code}`\n💰 ₹{da}.00",
         parse_mode='Markdown'
     )
-    return WAITING_FOR_TRANSFER_USER
+    clear_user_state(user_id)
+    return ConversationHandler.END
+
+# ============ OWNER: ADD ACCOUNT FLOW ============
+async def owner_add_number(update, context):
+    query = update.callback_query
+    await query.answer()
+    user_id = update.effective_user.id
+    if not is_owner(user_id):
+        return
+    # Ask channel first
+    text = "📥 *Add Account* — Choose channel:\n\nWhere should this account be listed?"
+    keyboard = [
+        [InlineKeyboardButton("📱 Buy Channel", callback_data="addacc_ch_buy")],
+        [InlineKeyboardButton("♻️ Resale Channel", callback_data="addacc_ch_resale")],
+        [InlineKeyboardButton("🔙 Back", callback_data="owner_panel")]
+    ]
+    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    set_user_state(user_id, WAITING_FOR_ADDACC_CHANNEL)
+    return WAITING_FOR_ADDACC_CHANNEL
+
+async def addacc_pick_channel(update, context):
+    query = update.callback_query
+    await query.answer()
+    user_id = update.effective_user.id
+    if not is_owner(user_id):
+        return
+    channel = "buy" if query.data == "addacc_ch_buy" else "resale"
+    set_user_state(user_id, WAITING_FOR_COUNTRY, {"channel": channel})
+    label = "Buy" if channel == "buy" else "Resale"
+    await query.edit_message_text(
+        f"➕ *Add Account* ({label})\n\n🌍 Enter country name (e.g. `India`, `USA 2024`, `Japan (Fresh)`):",
+        parse_mode='Markdown'
+    )
+    return WAITING_FOR_COUNTRY
+
+async def addaccount_cmd(update, context):
+    user_id = update.effective_user.id
+    if not is_owner(user_id):
+        await update.message.reply_text("❌ Unauthorized.")
+        return
+    text = "📥 *Add Account* — Choose channel:"
+    keyboard = [
+        [InlineKeyboardButton("📱 Buy Channel", callback_data="addacc_ch_buy")],
+        [InlineKeyboardButton("♻️ Resale Channel", callback_data="addacc_ch_resale")],
+        [InlineKeyboardButton("🔙 Back", callback_data="owner_panel")]
+    ]
+    await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+
+async def handle_country_input(update, context):
+    user_id = update.effective_user.id
+    if not is_owner(user_id):
+        return ConversationHandler.END
+    country = update.message.text.strip()
+    if len(country) < 2 or len(country) > 40:
+        await update.message.reply_text("❌ Country name 2-40 chars.")
+        return WAITING_FOR_COUNTRY
+    st = get_user_state(user_id)
+    st["data"]["country"] = country
+    set_user_state(user_id, WAITING_FOR_PRICE, st["data"])
+    await update.message.reply_text("💰 Enter price per account (INR):", parse_mode='Markdown')
+    return WAITING_FOR_PRICE
+
+async def handle_price_input(update, context):
+    user_id = update.effective_user.id
+    if not is_owner(user_id):
+        return ConversationHandler.END
+    try:
+        price = int(update.message.text.strip())
+        if price <= 0:
+            await update.message.reply_text("❌ Must be > 0.")
+            return WAITING_FOR_PRICE
+        st = get_user_state(user_id)
+        st["data"]["price"] = price
+        set_user_state(user_id, WAITING_FOR_SESSION, st["data"])
+        await update.message.reply_text(
+            "🔑 Send *session string* (Pyrogram string session):\n\n"
+            "Send one session per message. After adding, you'll be asked to add more or finish.",
+            parse_mode='Markdown'
+        )
+        return WAITING_FOR_SESSION
+    except ValueError:
+        await update.message.reply_text("❌ Numbers only.")
+        return WAITING_FOR_PRICE
+
+async def handle_session_input(update, context):
+    user_id = update.effective_user.id
+    if not is_owner(user_id):
+        return ConversationHandler.END
+    session = update.message.text.strip()
+    if len(session) < 50:
+        await update.message.reply_text("❌ Session string too short. Send valid session.")
+        return WAITING_FOR_SESSION
+    st = get_user_state(user_id)
+    st["data"]["session"] = session
+    set_user_state(user_id, WAITING_FOR_2FA, st["data"])
+    await update.message.reply_text(
+        "🔐 Send *2FA password* for this session, or send `none` if not set:",
+        parse_mode='Markdown'
+    )
+    return WAITING_FOR_2FA
+
+async def handle_2fa_input(update, context):
+    user_id = update.effective_user.id
+    if not is_owner(user_id):
+        return ConversationHandler.END
+    twofa_raw = update.message.text.strip()
+    twofa = None if twofa_raw.lower() in ("none", "no", "-", "n/a") else twofa_raw
+    st = get_user_state(user_id)
+    d = st["data"]
+    channel = d.get("channel", "buy")
+    country = d["country"]
+    price = d["price"]
+    session_str = d["session"]
+
+    ch = _channel_dict(channel)
+    if country not in ch:
+        ch[country] = {"price": price, "quantity": 0, "sessions": []}
+    ch[country]["price"] = price  # allow price update
+    ch[country]["sessions"].append({"session": session_str, "twofa": twofa, "phone_number": "N/A"})
+    ch[country]["quantity"] = len(ch[country]["sessions"])
+    save_data(data)
+
+    # Try to fetch phone number instantly
+    phone = "N/A"
+    try:
+        c = await create_client(session_str, f"add_{user_id}")
+        if c:
+            phone = await get_phone_number(c)
+            try:
+                await c.stop()
+            except:
+                pass
+            # save phone number
+            ch[country]["sessions"][-1]["phone_number"] = phone
+            save_data(data)
+    except Exception as e:
+        logger.error(f"[ADD PHONE FETCH] {e}")
+
+    await log_session_added(context, country, 1, price, phone, twofa, channel=channel)
+
+    keyboard = [
+        [InlineKeyboardButton("➕ Add More", callback_data="addmore_yes"),
+         InlineKeyboardButton("✅ Done", callback_data="addmore_no")]
+    ]
+    label = "Buy" if channel == "buy" else "Resale"
+    await update.message.reply_text(
+        f"✅ *Added to {label}*\n\n"
+        f"🌍 {country.upper()}\n"
+        f"📱 Phone: `{phone}`\n"
+        f"💰 ₹{price}.00\n"
+        f"📦 Stock now: {ch[country]['quantity']}\n\n"
+        f"Add another session for the same country?",
+        reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown'
+    )
+    set_user_state(user_id, WAITING_FOR_ADD_MORE_SESSIONS, st["data"])
+    return WAITING_FOR_ADD_MORE_SESSIONS
+
+async def handle_add_more_choice(update, context):
+    """Fallback for text-based yes/no."""
+    user_id = update.effective_user.id
+    txt = update.message.text.strip().lower()
+    if txt in ("yes", "y", "add"):
+        st = get_user_state(user_id)
+        set_user_state(user_id, WAITING_FOR_SESSION, st["data"])
+        await update.message.reply_text("🔑 Send next session string:", parse_mode='Markdown')
+        return WAITING_FOR_SESSION
+    else:
+        clear_user_state(user_id)
+        await update.message.reply_text("✅ Done adding sessions.", parse_mode='Markdown')
+        return ConversationHandler.END
+
+async def addmore_callback(update, context):
+    query = update.callback_query
+    await query.answer()
+    user_id = update.effective_user.id
+    if not is_owner(user_id):
+        return
+    if query.data == "addmore_yes":
+        st = get_user_state(user_id)
+        set_user_state(user_id, WAITING_FOR_SESSION, st["data"])
+        await query.edit_message_text("🔑 Send next session string:", parse_mode='Markdown')
+    else:
+        clear_user_state(user_id)
+        await query.edit_message_text(
+            "✅ Done adding sessions.",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("👑 Panel", callback_data="owner_panel")]]),
+            parse_mode='Markdown'
+        )
+
+# ============ OWNER: DELETE COUNTRY ============
+async def owner_delete_country(update, context):
+    query = update.callback_query
+    await query.answer()
+    user_id = update.effective_user.id
+    if not is_owner(user_id):
+        return
+    keyboard = []
+    for c, info in data["accounts"].items():
+        keyboard.append([InlineKeyboardButton(f"📱 BUY {c} ({info['quantity']})",
+                                              callback_data=f"delete_confirm_buy_{c}")])
+    for c, info in data.get("resale_accounts", {}).items():
+        keyboard.append([InlineKeyboardButton(f"♻️ RESALE {c} ({info['quantity']})",
+                                              callback_data=f"delete_confirm_resale_{c}")])
+    if not keyboard:
+        await query.edit_message_text(
+            "📭 No countries to delete.",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("👑 Panel", callback_data="owner_panel")]]),
+            parse_mode='Markdown'
+        )
+        return
+    keyboard.append([InlineKeyboardButton("🔙 Back", callback_data="owner_panel")])
+    await query.edit_message_text("🗑 *Select country to delete:*", reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+
+async def confirm_delete_country(update, context):
+    query = update.callback_query
+    await query.answer()
+    user_id = update.effective_user.id
+    parts = query.data.split("_")
+    channel = parts[2]
+    country = "_".join(parts[3:])
+    if not is_owner(user_id):
+        return
+    ch = _channel_dict(channel)
+    if country in ch:
+        q = ch[country]["quantity"]
+        p = ch[country]["price"]
+        await log_country_deleted(context, country, q, p, channel=channel)
+        del ch[country]
+        save_data(data)
+        text = f"✅ Deleted from {channel.upper()}: `{country}`"
+    else:
+        text = "❌ Not found."
+    await query.edit_message_text(text,
+                                  reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("👑 Panel", callback_data="owner_panel")]]),
+                                  parse_mode='Markdown')
+
+# ============ SET BOT PHOTO ============
+async def set_bot_photo(update, context):
+    user_id = update.effective_user.id
+    if not is_owner(user_id):
+        return
+    if update.callback_query:
+        await update.callback_query.edit_message_text("📸 Send bot picture:", parse_mode='Markdown')
+    else:
+        await update.message.reply_text("📸 Send bot picture:", parse_mode='Markdown')
+    set_user_state(user_id, WAITING_FOR_BOT_PHOTO)
+    return WAITING_FOR_BOT_PHOTO
+
+async def handle_photo_owner(update, context):
+    user_id = update.effective_user.id
+    state = get_user_state(user_id)
+    if state["state"] == WAITING_FOR_SCREENSHOT:
+        return await handle_screenshot(update, context)
+    if state["state"] != WAITING_FOR_BOT_PHOTO or not is_owner(user_id):
+        return ConversationHandler.END
+    photo = update.message.photo[-1]
+    data["bot_photo"] = photo.file_id
+    save_data(data)
+    await update.message.reply_text("✅ Bot photo updated!", parse_mode='Markdown')
+    clear_user_state(user_id)
+    return ConversationHandler.END
+
+# ============ TRANSFER ============
+async def transfer_cmd(update, context):
+    user_id = update.effective_user.id
+    args = context.args
+    if len(args) == 2:
+        try:
+            target_id = int(args[0])
+            amount = int(args[1])
+        except:
+            await update.message.reply_text("❌ Usage: /transfer <user_id> <amount>")
+            return
+        await _do_transfer(update, context, user_id, target_id, amount)
+        return
+    set_user_state(user_id, WAITING_FOR_TRANSFER_USER)
+    await update.message.reply_text("🔁 *Transfer Balance*\n\nEnter target user ID:", parse_mode='Markdown')
 
 async def handle_transfer_user(update, context):
     user_id = update.effective_user.id
     try:
         target_id = int(update.message.text.strip())
     except:
-        await update.message.reply_text("❌ Invalid ID. Send numbers only, or /cancel.")
+        await update.message.reply_text("❌ Numbers only.")
         return WAITING_FOR_TRANSFER_USER
     if target_id == user_id:
-        await update.message.reply_text("❌ You cannot transfer to yourself.")
-        return WAITING_FOR_TRANSFER_USER
-    if str(target_id) not in data["users"]:
-        await update.message.reply_text("❌ Target user not found in bot. Ask them to /start first.")
-        return WAITING_FOR_TRANSFER_USER
+        await update.message.reply_text("❌ Can't transfer to yourself.")
+        clear_user_state(user_id)
+        return ConversationHandler.END
     st = get_user_state(user_id)
     st["data"]["target_id"] = target_id
     set_user_state(user_id, WAITING_FOR_TRANSFER_AMOUNT, st["data"])
-    bal = get_user_data(user_id)["balance"]
-    await update.message.reply_text(
-        f"💰 Send amount to transfer (1 – {bal}). Or /cancel.",
-        parse_mode='Markdown'
-    )
+    await update.message.reply_text("💰 Enter amount to transfer:", parse_mode='Markdown')
     return WAITING_FOR_TRANSFER_AMOUNT
 
 async def handle_transfer_amount(update, context):
@@ -1559,17 +2315,26 @@ async def handle_transfer_amount(update, context):
     try:
         amount = int(update.message.text.strip())
     except:
-        await update.message.reply_text("❌ Numbers only. Try again or /cancel.")
+        await update.message.reply_text("❌ Numbers only.")
         return WAITING_FOR_TRANSFER_AMOUNT
     st = get_user_state(user_id)
-    target_id = st["data"].get("target_id")
-    bal = get_user_data(user_id)["balance"]
-    if amount < 1:
+    target_id = st["data"]["target_id"]
+    await _do_transfer(update, context, user_id, target_id, amount)
+    clear_user_state(user_id)
+    return ConversationHandler.END
+
+async def _do_transfer(update, context, user_id, target_id, amount):
+    u = get_user_data(user_id)
+    bal = int(u.get("balance", 0))
+    if amount <= 0:
         await update.message.reply_text("❌ Amount must be > 0.")
-        return WAITING_FOR_TRANSFER_AMOUNT
+        return
     if amount > bal:
-        await update.message.reply_text(f"❌ You only have ₹{bal}.00. Can't send ₹{amount}.")
-        return WAITING_FOR_TRANSFER_AMOUNT
+        await update.message.reply_text(f"❌ You only have ₹{bal}. Can't send ₹{amount}.")
+        return
+    # ensure target exists
+    if str(target_id) not in data["users"]:
+        data["users"][str(target_id)] = {"balance": 0, "purchases": [], "username": f"User_{target_id}"}
 
     data["users"][str(user_id)]["balance"] -= amount
     data["users"][str(target_id)]["balance"] = data["users"][str(target_id)].get("balance", 0) + amount
@@ -1577,7 +2342,6 @@ async def handle_transfer_amount(update, context):
 
     from_after = data["users"][str(user_id)]["balance"]
     to_after = data["users"][str(target_id)]["balance"]
-
     username = data["users"][str(user_id)].get("username", f"User_{user_id}")
     await log_transfer(context, user_id, username, target_id, amount, from_after, to_after)
 
@@ -1596,9 +2360,6 @@ async def handle_transfer_amount(update, context):
         )
     except Exception as e:
         logger.error(f"[TRANSFER NOTIFY] {e}")
-
-    clear_user_state(user_id)
-    return ConversationHandler.END
 
 # ============ OWNER PANEL ============
 async def owner_panel(update, context):
@@ -1629,7 +2390,7 @@ Manage your bot from here:
     else:
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode='Markdown')
 
-# ============ /add (owner adds balance to user) ============
+# ============ /add /deduct ============
 async def owner_add_command(update, context):
     user_id = update.effective_user.id
     if not is_owner(user_id):
@@ -1640,12 +2401,11 @@ async def owner_add_command(update, context):
         try:
             target_user_id = int(args[0])
             amount = int(args[1])
-            if amount < 1:
+            if amount <= 0:
                 await update.message.reply_text("❌ Amount must be > 0!")
                 return
             if str(target_user_id) not in data["users"]:
-                await update.message.reply_text("❌ User not found!")
-                return
+                data["users"][str(target_user_id)] = {"balance": 0, "purchases": [], "username": f"User_{target_user_id}"}
             before = data["users"][str(target_user_id)]["balance"]
             data["users"][str(target_user_id)]["balance"] += amount
             after = data["users"][str(target_user_id)]["balance"]
@@ -1666,7 +2426,6 @@ async def owner_add_command(update, context):
         except ValueError:
             await update.message.reply_text("❌ Usage: /add <user_id> <amount>")
         return
-
     if len(args) == 1:
         try:
             target_user_id = int(args[0])
@@ -1674,8 +2433,7 @@ async def owner_add_command(update, context):
             await update.message.reply_text("❌ Usage: /add <user_id> [amount]")
             return
         if str(target_user_id) not in data["users"]:
-            await update.message.reply_text("❌ User not found!")
-            return
+            data["users"][str(target_user_id)] = {"balance": 0, "purchases": [], "username": f"User_{target_user_id}"}
         cur_bal = data["users"][str(target_user_id)]["balance"]
         set_user_state(user_id, WAITING_FOR_ADDBAL_AMOUNT, {"target_user_id": target_user_id})
         await update.message.reply_text(
@@ -1685,7 +2443,6 @@ async def owner_add_command(update, context):
             parse_mode='Markdown'
         )
         return
-
     set_user_state(user_id, WAITING_FOR_TARGET_USER_ID, {"action": "add"})
     await update.message.reply_text("➕ Send target user ID:", parse_mode='Markdown')
 
@@ -1699,7 +2456,7 @@ async def owner_deduct_command(update, context):
         try:
             target_user_id = int(args[0])
             amount = int(args[1])
-            if amount < 1:
+            if amount <= 0:
                 await update.message.reply_text("❌ Amount must be > 0!")
                 return
             if str(target_user_id) not in data["users"]:
@@ -1738,9 +2495,12 @@ async def owner_handle_target_user_id(update, context):
     try:
         target_user_id = int(update.message.text.strip())
         if str(target_user_id) not in data["users"]:
-            await update.message.reply_text("❌ User not found!")
-            clear_user_state(user_id)
-            return ConversationHandler.END
+            if get_user_state(user_id)["data"].get("action") == "deduct":
+                await update.message.reply_text("❌ User not found!")
+                clear_user_state(user_id)
+                return ConversationHandler.END
+            data["users"][str(target_user_id)] = {"balance": 0, "purchases": [], "username": f"User_{target_user_id}"}
+            save_data(data)
         st = get_user_state(user_id)
         st["data"]["target_user_id"] = target_user_id
         action = st["data"].get("action", "add")
@@ -1748,18 +2508,14 @@ async def owner_handle_target_user_id(update, context):
         if action == "add":
             set_user_state(user_id, WAITING_FOR_ADDBAL_AMOUNT, st["data"])
             await update.message.reply_text(
-                f"👤 Target: `{target_user_id}`\n"
-                f"💳 Current balance: ₹{cur_bal}.00\n\n"
-                f"💰 Enter amount to add:",
+                f"👤 Target: `{target_user_id}`\n💳 Current: ₹{cur_bal}.00\n\n💰 Enter amount to add:",
                 parse_mode='Markdown'
             )
             return WAITING_FOR_ADDBAL_AMOUNT
         else:
             set_user_state(user_id, WAITING_FOR_TARGET_AMOUNT, st["data"])
             await update.message.reply_text(
-                f"👤 Target: `{target_user_id}`\n"
-                f"💳 Current balance: ₹{cur_bal}.00\n\n"
-                f"💰 Enter amount to deduct:",
+                f"👤 Target: `{target_user_id}`\n💳 Current: ₹{cur_bal}.00\n\n💰 Enter amount to deduct:",
                 parse_mode='Markdown'
             )
             return WAITING_FOR_TARGET_AMOUNT
@@ -1775,8 +2531,8 @@ async def owner_handle_addbal_amount(update, context):
         amount = int(update.message.text.strip())
         st = get_user_state(user_id)
         target_user_id = st["data"]["target_user_id"]
-        if amount < 1:
-            await update.message.reply_text("❌ Amount must be > 0!")
+        if amount <= 0:
+            await update.message.reply_text("❌ > 0!")
             return WAITING_FOR_ADDBAL_AMOUNT
         before = data["users"][str(target_user_id)]["balance"]
         data["users"][str(target_user_id)]["balance"] += amount
@@ -1810,8 +2566,8 @@ async def owner_handle_target_amount(update, context):
         st = get_user_state(user_id)
         target_user_id = st["data"]["target_user_id"]
         before = data["users"][str(target_user_id)]["balance"]
-        if amount < 1:
-            await update.message.reply_text("❌ Amount must be > 0!")
+        if amount <= 0:
+            await update.message.reply_text("❌ > 0!")
             return WAITING_FOR_TARGET_AMOUNT
         if amount > before:
             await update.message.reply_text(f"❌ User has only ₹{before}.00")
@@ -1838,7 +2594,7 @@ async def owner_handle_target_amount(update, context):
         await update.message.reply_text("❌ Numbers only.")
         return WAITING_FOR_TARGET_AMOUNT
 
-# ============ DISCOUNT / COUPON CREATE (owner) ============
+# ============ DISCOUNT / COUPON CREATE ============
 async def create_discount(update, context):
     query = update.callback_query
     await query.answer()
@@ -1855,21 +2611,21 @@ async def handle_discount_input(update, context):
         return ConversationHandler.END
     try:
         discount = int(update.message.text.strip())
-        if discount < 1:
-            await update.message.reply_text("❌ Amount must be > 0!")
+        if discount <= 0:
+            await update.message.reply_text("❌ > 0!")
             return WAITING_FOR_DISCOUNT_AMOUNT
         discount_code = generate_random_code("DSC", 10)
         data["discount_codes"][discount_code] = {"discount": discount, "created": datetime.now().isoformat()}
         save_data(data)
         await log_discount_created(context, discount_code, discount)
         await update.message.reply_text(
-            f"✅ Discount Created!\n\n🎟 Code: `{discount_code}`\n💰 Discount: ₹{discount}.00",
+            f"✅ *Discount Created!*\n\n🎟 Code: `{discount_code}`\n💰 Discount: ₹{discount}.00",
             parse_mode='Markdown'
         )
         clear_user_state(user_id)
         return ConversationHandler.END
     except ValueError:
-        await update.message.reply_text("❌ Invalid! Numbers only.")
+        await update.message.reply_text("❌ Numbers only.")
         return WAITING_FOR_DISCOUNT_AMOUNT
 
 async def create_coupon(update, context):
@@ -1888,20 +2644,20 @@ async def handle_coupon_input_owner(update, context):
         return ConversationHandler.END
     try:
         amount = int(update.message.text.strip())
-        if amount < 1:
-            await update.message.reply_text("❌ Amount must be > 0!")
+        if amount <= 0:
+            await update.message.reply_text("❌ > 0!")
             return WAITING_FOR_COUPON_AMOUNT
         coupon_code = generate_random_code("CPN", 12)
         data["coupons"][coupon_code] = {"amount": amount, "used": False, "created": datetime.now().isoformat()}
         save_data(data)
         await update.message.reply_text(
-            f"✅ Coupon Created!\n\n🎫 Code: `{coupon_code}`\n💰 Amount: ₹{amount}.00",
+            f"✅ *Coupon Created!*\n\n🎫 Code: `{coupon_code}`\n💰 Amount: ₹{amount}.00",
             parse_mode='Markdown'
         )
         clear_user_state(user_id)
         return ConversationHandler.END
     except ValueError:
-        await update.message.reply_text("❌ Invalid! Numbers only.")
+        await update.message.reply_text("❌ Numbers only.")
         return WAITING_FOR_COUPON_AMOUNT
 
 # ============ BROADCAST ============
@@ -1954,7 +2710,7 @@ async def broadcast_confirm(update, context):
             target_user_id = int(user_id_str)
             await context.bot.send_message(
                 chat_id=target_user_id,
-                text=f"📣 *Broadcast Message*\n\n{broadcast_message}",
+                text=f"📣 *Broadcast*\n\n{broadcast_message}",
                 parse_mode='Markdown'
             )
             success_count += 1
@@ -1963,8 +2719,8 @@ async def broadcast_confirm(update, context):
             failed_count += 1
     await log_broadcast_sent(context, total_users, success_count, failed_count)
     await query.edit_message_text(
-        f"✅ Broadcast Complete!\n\n✅ Sent: {success_count}\n❌ Failed: {failed_count}",
-        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Panel", callback_data="owner_panel")]]),
+        f"✅ *Broadcast Complete!*\n\n✅ Sent: {success_count}\n❌ Failed: {failed_count}",
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("👑 Panel", callback_data="owner_panel")]]),
         parse_mode='Markdown'
     )
     clear_user_state(user_id)
@@ -1984,7 +2740,7 @@ async def review_payment(update, context):
     username = data["users"].get(str(payment_user_id), {}).get("username", f"User_{payment_user_id}")
     safe_username = escape_markdown(username)
     utr = payment_info.get("utr", "N/A")
-    id_type = payment_info.get("id_type", "ID").upper()
+    id_type = (payment_info.get("id_type") or "ID").upper()
     text = f"""
 💳 *Payment Review*
 
@@ -2018,7 +2774,7 @@ async def approve_fund(update, context):
         await query.answer("❌ Payment not found!", show_alert=True)
         return
     payment_info = data["pending_payments"][str(target_user_id)]
-    if payment_info.get("status") not in ("submitted", "manual_review", "awaiting_utr"):
+    if payment_info.get("status") not in ("submitted", "manual_review", "awaiting_utr", "verifying"):
         await query.answer("⚠️ Already processed!", show_alert=True)
         return
     amount = payment_info["amount"]
@@ -2050,14 +2806,14 @@ async def approve_fund(update, context):
     try:
         await query.edit_message_caption(
             caption=f"✅ Approved!\n\n👤 `{target_user_id}`\n💰 ₹{amount}.00",
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Panel", callback_data="owner_panel")]]),
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("👑 Panel", callback_data="owner_panel")]]),
             parse_mode='Markdown'
         )
     except:
         try:
             await query.edit_message_text(
                 f"✅ Approved! `{target_user_id}` — ₹{amount}.00",
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Panel", callback_data="owner_panel")]]),
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("👑 Panel", callback_data="owner_panel")]]),
                 parse_mode='Markdown'
             )
         except:
@@ -2082,7 +2838,7 @@ async def reject_fund(update, context):
     try:
         await context.bot.send_message(
             chat_id=target_user_id,
-            text=f"❌ *Payment Rejected!*\n\n💰 Amount: ₹{amount}.00\n📝 Reason: Invalid payment\n\n💡 Contact: @{OWNER_TG_USERNAME}",
+            text=f"❌ *Payment Rejected!*\n\n💰 ₹{amount}.00\n📝 Reason: Invalid payment\n\n💡 Contact: @{OWNER_TG_USERNAME}",
             parse_mode='Markdown'
         )
     except:
@@ -2090,20 +2846,20 @@ async def reject_fund(update, context):
     try:
         await query.edit_message_caption(
             caption=f"❌ Rejected!\n\n👤 `{target_user_id}`\n💰 ₹{amount}.00",
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Panel", callback_data="owner_panel")]]),
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("👑 Panel", callback_data="owner_panel")]]),
             parse_mode='Markdown'
         )
     except:
         try:
             await query.edit_message_text(
                 f"❌ Rejected! `{target_user_id}` — ₹{amount}.00",
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Panel", callback_data="owner_panel")]]),
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("👑 Panel", callback_data="owner_panel")]]),
                 parse_mode='Markdown'
             )
         except:
             pass
 
-# ============ OWNER USER BALANCE LIST / PAYMENTS / STATS ============
+# ============ OWNER LISTS ============
 async def owner_user_balance_list(update, context):
     query = update.callback_query
     await query.answer()
@@ -2118,19 +2874,19 @@ async def owner_user_balance_list(update, context):
     if not users_with_balance:
         await query.edit_message_text(
             "📭 No users with balance ≥ ₹1",
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Panel", callback_data="owner_panel")]]),
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("👑 Panel", callback_data="owner_panel")]]),
             parse_mode='Markdown'
         )
         return
     users_with_balance.sort(key=lambda x: x["balance"], reverse=True)
     text = f"💰 *Users with Balance ≥ ₹1*\n\nTotal: {len(users_with_balance)}\n\n"
     for u in users_with_balance[:50]:
-        text += f"• `{u['user_id']}` - {escape_markdown(u['username'])}: ₹{u['balance']}.00\n"
+        text += f"• `{u['user_id']}` — {escape_markdown(u['username'])}: ₹{u['balance']}.00\n"
     if len(users_with_balance) > 50:
         text += f"\n... and {len(users_with_balance) - 50} more"
     await query.edit_message_text(
         text,
-        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Panel", callback_data="owner_panel")]]),
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("👑 Panel", callback_data="owner_panel")]]),
         parse_mode='Markdown'
     )
 
@@ -2142,12 +2898,12 @@ async def owner_view_payments(update, context):
         return
     pending = {
         uid: info for uid, info in data["pending_payments"].items()
-        if info.get("status") in ("submitted", "manual_review")
+        if info.get("status") in ("submitted", "manual_review", "verifying", "awaiting_utr")
     }
     if not pending:
         await query.edit_message_text(
             "📭 No pending payments!",
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Panel", callback_data="owner_panel")]]),
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("👑 Panel", callback_data="owner_panel")]]),
             parse_mode='Markdown'
         )
         return
@@ -2156,8 +2912,8 @@ async def owner_view_payments(update, context):
     for pid, info in list(pending.items())[:5]:
         username = data["users"].get(str(pid), {}).get("username", f"User_{pid}")
         text += f"👤 {escape_markdown(username)}\n💰 ₹{info['amount']}\n\n"
-        keyboard.append([InlineKeyboardButton(f"🔍 {username[:15]} - ₹{info['amount']}", callback_data=f"review_payment_{pid}")])
-    keyboard.append([InlineKeyboardButton("🏠 Panel", callback_data="owner_panel")])
+        keyboard.append([InlineKeyboardButton(f"🔍 {username[:15]} — ₹{info['amount']}", callback_data=f"review_payment_{pid}")])
+    keyboard.append([InlineKeyboardButton("👑 Panel", callback_data="owner_panel")])
     await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
 
 async def owner_stats(update, context):
@@ -2188,1194 +2944,227 @@ async def owner_stats(update, context):
 """
     await query.edit_message_text(
         text,
-        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Panel", callback_data="owner_panel")]]),
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("👑 Panel", callback_data="owner_panel")]]),
         parse_mode='Markdown'
     )
 
-# ============ END OF PART 1 ============
-# ============ COUNTRY UI (BUY + RESALE) - NEW DESIGN ============
-def _channel_dict(channel):
-    return data["accounts"] if channel == "buy" else data["resale_accounts"]
-
-def _channel_prefix(channel):
-    return "" if channel == "buy" else "r"
-
-async def show_countries(update, context, channel="buy"):
+# ============ SERVER 2 (Services Marketplace) ============
+async def server2_home(update, context):
     query = update.callback_query
     await query.answer()
-    user_id = update.effective_user.id
-    if not is_owner(user_id):
-        is_member = await check_user_membership(context, user_id)
-        if not is_member:
-            await show_force_join_message(update, context)
-            return
+    text = f"""
+🛒 *Services Marketplace*
 
-    ch = _channel_dict(channel)
-    available = {c: info for c, info in ch.items() if info["quantity"] > 0}
+Browse or list your own services.
 
-    if channel == "resale":
-        header = (
-            "♻️ *Resale Accounts*\n\n"
-            f"ℹ️ Here you can buy resale accounts that are being sold on {RESALE_BUYER_BOT}.\n"
-            "━━━━━━━━━━━━━━━━━━━━\n\n"
+💡 Listing fee: ₹{SERVICE_ADD_FEE}
+"""
+    keyboard = [
+        [InlineKeyboardButton("📋 Available Services", callback_data="srv2_available")],
+        [InlineKeyboardButton("➕ Add My Service", callback_data="srv2_add_start")],
+        [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
+    ]
+    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+
+async def srv2_available(update, context):
+    query = update.callback_query
+    await query.answer()
+    services = data.get("services", {})
+    if not services:
+        await query.edit_message_text(
+            "📭 No services listed yet.",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="server2_home")]]),
+            parse_mode='Markdown'
         )
-    else:
-        header = "📍 *Available Accounts*\n━━━━━━━━━━━━━━━━━━━━\n\n"
-
+        return
+    text = "📋 *Available Services*\n\n"
     keyboard = []
-    if available:
-        text = header
-        pfx = _channel_prefix(channel)
-        country_list = list(available.items())
-        for idx, (country, info) in enumerate(country_list):
-            flag = get_country_flag(country)
-            pretty = format_country_name(country)
-            text += f"📱 *{pretty}* {flag}\n"
-            text += f"📦 Stock: {info['quantity']}  •  💰 Price: ₹{info['price']}.00\n"
-            if idx < len(country_list) - 1:
-                text += "────────────────────\n"
-            keyboard.append([InlineKeyboardButton(
-                f"{flag} {pretty} — ₹{info['price']}",
-                callback_data=f"{pfx}country_{country}"
-            )])
-        text += "\n👇 *Select a country to purchase:*"
-        keyboard.append([InlineKeyboardButton("🔙 Back to Menu", callback_data="main_menu")])
-    else:
-        text = header + "📭 *No accounts available currently!*"
-        keyboard = [[InlineKeyboardButton("🔙 Back to Menu", callback_data="main_menu")]]
+    for sid, s in list(services.items())[:15]:
+        text += f"• {escape_markdown(s['name'])} — ₹{s['price']}\n"
+        keyboard.append([InlineKeyboardButton(f"{s['name'][:20]} — ₹{s['price']}", callback_data=f"srv2_view_{sid}")])
+    keyboard.append([InlineKeyboardButton("🔙 Back", callback_data="server2_home")])
     await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
 
-async def show_countries_buy(update, context):
-    await show_countries(update, context, channel="buy")
-
-async def show_countries_resale(update, context):
-    await show_countries(update, context, channel="resale")
-
-async def show_account_details(update, context, channel="buy"):
+async def srv2_view_service(update, context):
     query = update.callback_query
     await query.answer()
-    user_id = update.effective_user.id
-    parts = query.data.split("_", 1)
-    country = parts[1]
-    ch = _channel_dict(channel)
-    if not is_owner(user_id):
-        is_member = await check_user_membership(context, user_id)
-        if not is_member:
-            await show_force_join_message(update, context)
-            return
-    if country not in ch:
-        await query.edit_message_text("❌ Country not found!", parse_mode='Markdown')
+    sid = query.data.replace("srv2_view_", "")
+    s = data.get("services", {}).get(sid)
+    if not s:
+        await query.edit_message_text("❌ Not found.", parse_mode='Markdown')
         return
-    info = ch[country]
-    balance = get_user_data(user_id)["balance"]
-    label = "Virtual Account" if channel == "buy" else "Resale Account"
-    flag = get_country_flag(country)
-    pretty = format_country_name(country)
-    text = f"""
-📱 *{pretty}* {flag} — {label}
-
-💰 Price: ₹{info['price']}.00
-📊 Available: {info['quantity']}
-💳 Your Balance: ₹{balance}.00
-    """
-    pfx = _channel_prefix(channel)
+    text = (
+        f"🛒 *{escape_markdown(s['name'])}*\n\n"
+        f"💰 Price: ₹{s['price']}\n"
+        f"👤 Seller: {escape_markdown(s.get('contact', 'N/A'))}\n\n"
+        f"📝 {escape_markdown(s.get('desc', ''))}"
+    )
     keyboard = [
-        [InlineKeyboardButton("💳 BUY NUMBER", callback_data=f"{pfx}buy_number_{country}")],
-        [InlineKeyboardButton("🎟 DISCOUNT CODE", callback_data="discount")],
-        [InlineKeyboardButton("🔙 Back", callback_data=("virtual_accounts" if channel == "buy" else "resale_accounts"))],
-        [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
+        [InlineKeyboardButton("💬 Contact Seller", url=f"https://t.me/{s.get('contact', '').lstrip('@')}")],
+        [InlineKeyboardButton("🔙 Back", callback_data="srv2_available")]
     ]
     await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
 
-async def process_buy_number(update, context, channel="buy"):
+async def srv2_buy_service(update, context):
+    query = update.callback_query
+    await query.answer("Contact seller directly.", show_alert=True)
+
+async def srv2_add_start(update, context):
     query = update.callback_query
     await query.answer()
     user_id = update.effective_user.id
-    # callback: [r]buy_number_<country>  --> country can contain underscores/spaces
-    prefix = "rbuy_number_" if channel == "resale" else "buy_number_"
-    country = query.data[len(prefix):] if query.data.startswith(prefix) else query.data.split("_")[-1]
-    ch = _channel_dict(channel)
-    if country not in ch:
-        # Try fallback with underscores replaced
-        for k in ch.keys():
-            if k.upper() == country.upper():
-                country = k
-                break
-    if country not in ch:
-        await query.edit_message_text("❌ Country not found!", parse_mode='Markdown')
-        return ConversationHandler.END
-    info = ch[country]
-    price = info["price"]
-    balance = get_user_data(user_id)["balance"]
-    available = info["quantity"]
-    flag = get_country_flag(country)
-    pretty = format_country_name(country)
-    await query.edit_message_text(
-        f"🛒 *Purchase {pretty} {flag}*\n\n"
-        f"📊 Available: {available}\n💰 Price: ₹{price}.00\n💳 Balance: ₹{balance}.00\n\n"
-        f"📝 How many? (1-{available}):",
-        parse_mode='Markdown'
-    )
-    set_user_state(user_id, WAITING_FOR_QUANTITY, {"country": country, "price": price, "available": available, "channel": channel})
-    return WAITING_FOR_QUANTITY
-
-async def handle_quantity_input(update, context):
-    user_id = update.effective_user.id
-    text = update.message.text.strip()
-    try:
-        quantity = int(text)
-        state = get_user_state(user_id)
-        country = state["data"]["country"]
-        price = state["data"]["price"]
-        available = state["data"]["available"]
-        channel = state["data"].get("channel", "buy")
-        if quantity < 1:
-            await update.message.reply_text("❌ Must be > 0!")
-            return WAITING_FOR_QUANTITY
-        if quantity > available:
-            await update.message.reply_text(f"❌ Only {available} available!")
-            return WAITING_FOR_QUANTITY
-        total_price = price * quantity
-        balance = get_user_data(user_id)["balance"]
-        username = data["users"][str(user_id)]["username"]
-        if balance < total_price:
-            await log_insufficient_balance(context, user_id, username, total_price, balance)
-            await update.message.reply_text(
-                f"❌ Insufficient balance!\n💰 Need: ₹{total_price}\n💳 Have: ₹{balance}"
-            )
-            clear_user_state(user_id)
-            return ConversationHandler.END
-        pfx = _channel_prefix(channel)
-        flag = get_country_flag(country)
-        pretty = format_country_name(country)
-        keyboard = [
-            [InlineKeyboardButton("✅ CONFIRM", callback_data=f"{pfx}cnfbuy_{country}_{quantity}")],
-            [InlineKeyboardButton("❌ CANCEL", callback_data=("virtual_accounts" if channel == "buy" else "resale_accounts"))]
-        ]
-        await update.message.reply_text(
-            f"🛒 *Confirm Purchase*\n\n📱 {pretty} {flag} ({'Resale' if channel=='resale' else 'Buy'})\n"
-            f"📊 Qty: {quantity}\n💰 Total: ₹{total_price}\n💳 Balance: ₹{balance}",
-            reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown'
-        )
-        clear_user_state(user_id)
-        return ConversationHandler.END
-    except ValueError:
-        await update.message.reply_text("❌ Numbers only!")
-        return WAITING_FOR_QUANTITY
-
-async def confirm_purchase(update, context, channel="buy"):
-    query = update.callback_query
-    await query.answer()
-    user_id = update.effective_user.id
-    # callback: [r]cnfbuy_<country>_<qty>
-    prefix = "rcnfbuy_" if channel == "resale" else "cnfbuy_"
-    payload = query.data[len(prefix):] if query.data.startswith(prefix) else query.data
-    # split from right to get quantity
-    parts = payload.rsplit("_", 1)
-    if len(parts) != 2:
-        await query.edit_message_text("❌ Invalid data!", parse_mode='Markdown')
-        return
-    country = parts[0]
-    try:
-        quantity = int(parts[1])
-    except:
-        await query.edit_message_text("❌ Invalid quantity!", parse_mode='Markdown')
-        return
-
-    username = data["users"][str(user_id)]["username"]
-    ch = _channel_dict(channel)
-    # fallback match
-    if country not in ch:
-        for k in ch.keys():
-            if k.upper() == country.upper():
-                country = k
-                break
-    if country not in ch or ch[country]["quantity"] < quantity:
-        await query.edit_message_text("❌ Out of stock!", parse_mode='Markdown')
-        return
-    price_each = ch[country]["price"]
-    total_price = price_each * quantity
-    balance = get_user_data(user_id)["balance"]
-    if balance < total_price:
-        await log_insufficient_balance(context, user_id, username, total_price, balance)
-        await query.edit_message_text("❌ Insufficient!", parse_mode='Markdown')
-        return
-    sessions_to_assign = ch[country]["sessions"][:quantity]
-    ch[country]["sessions"] = ch[country]["sessions"][quantity:]
-    ch[country]["quantity"] -= quantity
-    data["users"][str(user_id)]["balance"] -= total_price
-    purchase = {
-        "country": country, "quantity": quantity, "price": total_price,
-        "sessions": sessions_to_assign, "date": datetime.now().isoformat(), "status": "completed",
-        "channel": channel
-    }
-    data["users"][str(user_id)]["purchases"].append(purchase)
-    track_sale(country, quantity, total_price, channel=channel)
-    save_data(data)
-    idx = len(data["users"][str(user_id)]["purchases"]) - 1
-    phones = [s.get("phone_number", "Unknown") for s in sessions_to_assign]
-    await log_number_purchase(context, user_id, username, country, quantity, total_price, phones, channel=channel)
-    flag = get_country_flag(country)
-    pretty = format_country_name(country)
-    keyboard = [
-        [InlineKeyboardButton("📱 GET NUMBERS", callback_data=f"get_number_{user_id}_{idx}")],
-        [InlineKeyboardButton("🛒 Buy More", callback_data=("virtual_accounts" if channel=="buy" else "resale_accounts"))],
-        [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
-    ]
-    await query.edit_message_text(
-        f"🎉 *Purchase Successful!*\n\n📱 {pretty} {flag}\n📊 Qty: {quantity}\n💰 ₹{total_price}\n"
-        f"💳 New Balance: ₹{data['users'][str(user_id)]['balance']}",
-        reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown'
-    )
-
-async def confirm_purchase_buy(update, context):
-    await confirm_purchase(update, context, channel="buy")
-
-async def confirm_purchase_resale(update, context):
-    await confirm_purchase(update, context, channel="resale")
-
-# --- get numbers / OTP / logout ---
-async def get_number_handler(update, context):
-    query = update.callback_query
-    await query.answer("📱 Fetching...")
-    parts = query.data.split("_")
-    user_id = int(parts[2])
-    idx = int(parts[3])
-    up = data["users"][str(user_id)]["purchases"]
-    if idx >= len(up):
-        return
-    purchase = up[idx]
-    sessions = purchase.get("sessions", [])
-    if not sessions:
-        return
-
-    async def fetch_phone(i, sd):
-        s = sd.get("session")
-        if s:
-            try:
-                c = await create_client(s, f"{user_id}_{i}")
-                if c:
-                    p = await get_phone_number(c)
-                    await c.stop()
-                    return p
-            except:
-                pass
-        return "Error"
-
-    phones = await asyncio.gather(*[fetch_phone(i, s) for i, s in enumerate(sessions)])
-    for idxp, ph in enumerate(phones):
-        try:
-            purchase["sessions"][idxp]["phone_number"] = ph
-        except:
-            pass
-    save_data(data)
-
-    flag = get_country_flag(purchase['country'])
-    pretty = format_country_name(purchase['country'])
-
-    text = f"📱 *Phone Numbers Retrieved!*\n\n"
-    text += f"*Country:* {pretty.upper()} {flag}\n"
-    text += f"*Quantity:* {purchase['quantity']}\n\n"
-    for i, p in enumerate(phones, 1):
-        text += f"*Account {i}:*\n📞 `{p}`\n\n"
-    text += "━━━━━━━━━━━━━━━━━━━━\n"
-    text += "⚡ *Next Steps:*\n"
-    text += "1️⃣ Use numbers to login on Telegram\n"
-    text += "2️⃣ Click *GET OTP* for verification\n"
-    text += "3️⃣ Complete login\n"
-
-    # ✅ Only GET OTP button now - no "LOGIN COMPLETE" so user doesn't accidentally lose the ID
-    keyboard = [
-        [InlineKeyboardButton("🔍 GET OTP", callback_data=f"get_otp_{user_id}_{idx}")]
-    ]
-    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-
-async def get_otp_handler(update, context):
-    query = update.callback_query
-    await query.answer("🔍 Fetching OTP...")
-    parts = query.data.split("_")
-    user_id = int(parts[2])
-    idx = int(parts[3])
-    up = data["users"][str(user_id)]["purchases"]
-    if idx >= len(up):
-        return
-    purchase = up[idx]
-    sessions = purchase.get("sessions", [])
-    if not sessions:
-        return
-    flag = get_country_flag(purchase['country'])
-    pretty = format_country_name(purchase['country'])
-    await query.edit_message_text(f"🔍 Fetching OTP for {pretty} {flag}...", parse_mode='Markdown')
-
-    async def fetch_otp(i, sd):
-        s = sd.get("session")
-        phone = sd.get("phone_number", "N/A")
-        twofa = sd.get("twofa")
-        if s:
-            client = None
-            try:
-                client = await create_client(s, f"{user_id}_{i}_otp")
-                if client:
-                    if phone in ["N/A", None, "Error"]:
-                        try:
-                            phone = await get_phone_number(client)
-                        except:
-                            pass
-                    otp = await get_otp_from_telegram(client)
-                    await client.stop()
-                    if otp:
-                        msg = f"✅ OTP: `{otp}` - `{phone}`"
-                        if twofa:
-                            msg += f"\n🔐 2FA: `{twofa}`"
-                        return {"status": "success", "message": msg}
-                    return {"status": "not_found", "message": f"⏳ OTP not found - `{phone}`"}
-            except Exception as e:
-                if client:
-                    try:
-                        await client.stop()
-                    except:
-                        pass
-                return {"status": "error", "message": f"❌ Error"}
-        return {"status": "error", "message": "❌ No session"}
-
-    results = await asyncio.gather(*[fetch_otp(i, s) for i, s in enumerate(sessions)])
-    text = f"🔑 *OTP Results*\n\n{pretty} {flag}\n"
-    success = 0
-    for i, r in enumerate(results, 1):
-        text += f"\n*Account {i}:* {r['message']}"
-        if r["status"] == "success":
-            success += 1
-    await log_otp_fetched(context, user_id, data["users"][str(user_id)]["username"], purchase['country'], success, len(sessions))
-    # ✅ Only Try Again + Logout after OTP success
-    keyboard = [
-        [InlineKeyboardButton("🔄 TRY AGAIN", callback_data=f"get_otp_{user_id}_{idx}")],
-        [InlineKeyboardButton("🚪 LOGOUT BOT", callback_data=f"logout_session_{user_id}_{idx}")],
-        [InlineKeyboardButton("🛒 Buy More", callback_data="virtual_accounts")],
-        [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
-    ]
-    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-
-async def login_complete(update, context):
-    # kept for legacy callbacks
-    query = update.callback_query
-    await query.answer("✅ Verified!")
-    parts = query.data.split("_")
-    user_id = int(parts[2])
-    idx = int(parts[3])
-    keyboard = [
-        [InlineKeyboardButton("🚪 LOGOUT BOT", callback_data=f"logout_session_{user_id}_{idx}")],
-        [InlineKeyboardButton("🛒 Buy More", callback_data="virtual_accounts")],
-        [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
-    ]
-    await query.edit_message_text("🎉 *Login Complete!*", reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-
-async def logout_session_handler(update, context):
-    query = update.callback_query
-    await query.answer("🚪 Logging out...")
-    parts = query.data.split("_")
-    user_id = int(parts[2])
-    idx = int(parts[3])
-    username = data["users"][str(user_id)]["username"]
-    up = data["users"][str(user_id)]["purchases"]
-    if idx >= len(up):
-        return
-    purchase = up[idx]
-    sessions = purchase.get("sessions", [])
-    results = []
-    for i, sd in enumerate(sessions):
-        s = sd.get("session")
-        phone = sd.get("phone_number", "N/A")
-        if s:
-            ok = await logout_session(s, f"{user_id}_{i}")
-            results.append(f"{'✅' if ok else '❌'} {phone}")
-            if ok:
-                await log_session_logout(context, user_id, username, phone)
-    await query.edit_message_text(
-        "🚪 *Logout Results*\n\n" + "\n".join(results),
-        reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("🛒 Buy More", callback_data="virtual_accounts")],
-            [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
-        ]),
-        parse_mode='Markdown'
-    )
-
-# ============ PROFILE ============
-async def show_balance(update, context):
-    query = update.callback_query
-    await query.answer()
-    user_id = int(query.data.split("_")[2])
-    if not is_owner(user_id):
-        is_member = await check_user_membership(context, user_id)
-        if not is_member:
-            await show_force_join_message(update, context)
-            return
-    balance = get_user_data(user_id)["balance"]
-    text = f"💳 *My Profile*\n\n💰 Balance: ₹{balance}.00\n\n📊 Recent Transactions:"
-    purchases = data["users"][str(user_id)]["purchases"]
-    if not purchases:
-        text += "\n• No transactions"
-    else:
-        for p in purchases[-5:]:
-            text += f"\n• {p['country'].upper()} - {p['quantity']}x - ₹{p['price']}.00"
-    keyboard = [
-        [InlineKeyboardButton("➕ Add Funds", callback_data="add_funds")],
-        [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
-    ]
-    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-
-# ============ ADD FUNDS FLOW ============
-async def show_add_funds_options(update, context):
-    query = update.callback_query
-    await query.answer()
-    user_id = update.effective_user.id
-    if not is_owner(user_id):
-        is_member = await check_user_membership(context, user_id)
-        if not is_member:
-            await show_force_join_message(update, context)
-            return
-    clear_user_state(user_id)
-    text = f"""
-➕ *Add Funds*
-
-💳 Choose method:
-
-1️⃣ Buy Funds (UPI) - Instant
-2️⃣ Coupon Code - Redeem
-
-💡 Minimum: {MIN_DEPOSIT} INR
-    """
-    keyboard = [
-        [InlineKeyboardButton("💸 Buy Funds (UPI)", callback_data="buy_fund")],
-        [InlineKeyboardButton("🎟 Coupon Code", callback_data="coupon_code")],
-        [InlineKeyboardButton("🔙 Back", callback_data="main_menu")]
-    ]
-    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-
-async def ask_fund_amount(update, context):
-    query = update.callback_query
-    await query.answer()
-    user_id = update.effective_user.id
-    await query.edit_message_text(
-        f"💰 *Enter Amount*\n\n💡 Minimum {MIN_DEPOSIT} INR\n\n📝 Reply with amount:",
-        parse_mode='Markdown'
-    )
-    set_user_state(user_id, WAITING_FOR_AMOUNT)
-    return WAITING_FOR_AMOUNT
-
-async def handle_amount_input(update, context):
-    user_id = update.effective_user.id
-    text = update.message.text.strip()
-    try:
-        amount = int(text)
-        if amount < MIN_DEPOSIT:
-            await update.message.reply_text(f"❌ Minimum ₹{MIN_DEPOSIT}!")
-            return WAITING_FOR_AMOUNT
-        qr_image = generate_upi_qr(amount)
-        caption = (
-            f"💳 *Pay ₹{amount}.00 via UPI*\n\n"
-            f"🆔 UPI ID: `{UPI_ID}`\n"
-            f"👤 Name: {UPI_NAME}\n"
-            f"💰 Amount: ₹{amount}.00\n\n"
-            f"📱 Scan QR or copy UPI ID.\n\n"
-            f"✅ After payment, send the *payment screenshot* here."
-        )
-        if qr_image:
-            await update.message.reply_photo(photo=qr_image, caption=caption, parse_mode='Markdown')
-        else:
-            await update.message.reply_text(caption, parse_mode='Markdown')
-        set_user_state(user_id, WAITING_FOR_SCREENSHOT, {"amount": amount})
-        return WAITING_FOR_SCREENSHOT
-    except ValueError:
-        await update.message.reply_text("❌ Numbers only!")
-        return WAITING_FOR_AMOUNT
-
-# ✅ SCREENSHOT → ASK UPI SOURCE
-async def handle_screenshot(update, context):
-    user_id = update.effective_user.id
-    state = get_user_state(user_id)
-    if state["state"] != WAITING_FOR_SCREENSHOT:
-        return ConversationHandler.END
-    amount = state["data"].get("amount", 0)
-    if not amount:
-        await update.message.reply_text("❌ Session expired. Try again.")
-        clear_user_state(user_id)
-        return ConversationHandler.END
-    if not update.message.photo:
-        await update.message.reply_text("❌ Please send a photo (screenshot).")
-        return WAITING_FOR_SCREENSHOT
-    photo_id = update.message.photo[-1].file_id
-
-    data["pending_payments"][str(user_id)] = {
-        "amount": amount,
-        "photo_id": photo_id,
-        "timestamp": datetime.now().isoformat(),
-        "status": "awaiting_utr",
-        "utr": None
-    }
-    save_data(data)
-
-    username = data["users"][str(user_id)]["username"]
-    await log_payment_submitted(context, user_id, username, amount)
-
-    keyboard = [
-        [InlineKeyboardButton("💜 FamPay", callback_data="upisrc_fampay"),
-         InlineKeyboardButton("💳 Other UPI", callback_data="upisrc_other")]
-    ]
-    await update.message.reply_text(
-        f"✅ Screenshot received!\n\n"
-        f"💰 Amount: ₹{amount}.00\n\n"
-        f"❓ *From which app did you pay?*\n"
-        f"Choose one:",
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        parse_mode='Markdown'
-    )
-    set_user_state(user_id, WAITING_FOR_UPI_SOURCE, {"amount": amount, "photo_id": photo_id})
-    return WAITING_FOR_UPI_SOURCE
-
-async def handle_upi_source(update, context):
-    query = update.callback_query
-    await query.answer()
-    user_id = update.effective_user.id
-    src = query.data.split("_", 1)[1]
-    st = get_user_state(user_id)
-    if st["state"] not in (WAITING_FOR_UPI_SOURCE, WAITING_FOR_UTR):
-        # Try to recover from pending_payments
-        pp = data["pending_payments"].get(str(user_id))
-        if pp and pp.get("status") == "awaiting_utr":
-            d = {"amount": pp["amount"], "photo_id": pp["photo_id"]}
-        else:
-            await query.edit_message_text(
-                "❌ Session expired. Please /start again and resubmit payment.",
-                parse_mode='Markdown'
-            )
-            return
-    else:
-        d = st.get("data", {})
-    d["upi_source"] = src
-    set_user_state(user_id, WAITING_FOR_UTR, d)
-
-    if src == "fampay":
-        prompt = (
-            "💜 *FamPay Selected*\n\n"
-            "🔢 Please send your *Transaction ID*.\n"
-            "💡 Example: `FMPIB5334310018` (letters + digits mixed)\n\n"
-            "↩️ Send /cancel or click Back to change UPI app."
-        )
-    else:
-        prompt = (
-            "💳 *Other UPI Selected*\n\n"
-            "🔢 Please send your *12 digit UTR number*.\n"
-            "💡 Example: `612004984273` (12 digits)\n\n"
-            "↩️ Send /cancel or click Back to change UPI app."
-        )
-    keyboard = [[InlineKeyboardButton("🔙 Back", callback_data="upisrc_back")]]
-    await query.edit_message_text(prompt, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-
-async def handle_upi_source_back(update, context):
-    query = update.callback_query
-    await query.answer()
-    user_id = update.effective_user.id
-    st = get_user_state(user_id)
-    d = st.get("data", {})
-    if not d:
-        pp = data["pending_payments"].get(str(user_id))
-        if pp:
-            d = {"amount": pp["amount"], "photo_id": pp["photo_id"]}
-    d.pop("upi_source", None)
-    set_user_state(user_id, WAITING_FOR_UPI_SOURCE, d)
-    keyboard = [
-        [InlineKeyboardButton("💜 FamPay", callback_data="upisrc_fampay"),
-         InlineKeyboardButton("💳 Other UPI", callback_data="upisrc_other")]
-    ]
-    await query.edit_message_text(
-        f"❓ *From which app did you pay?*\nChoose one:",
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        parse_mode='Markdown'
-    )
-
-# ✅ FIXED: handle UTR / Transaction ID input with proper error handling
-async def handle_utr_input(update, context):
-    user_id = update.effective_user.id
-    state = get_user_state(user_id)
-
-    # ✅ Session recovery - if state lost, try to get from pending_payments
-    if state["state"] != WAITING_FOR_UTR:
-        pp = data["pending_payments"].get(str(user_id))
-        if pp and pp.get("status") == "awaiting_utr":
-            # Recover session
-            state = {
-                "state": WAITING_FOR_UTR,
-                "data": {
-                    "amount": pp["amount"],
-                    "photo_id": pp["photo_id"],
-                    "upi_source": pp.get("upi_source", "other")
-                }
-            }
-        else:
-            await update.message.reply_text(
-                "❌ Payment session expired.\n\n"
-                "💡 Please /start again and resubmit your payment with screenshot.",
-                parse_mode='Markdown'
-            )
-            return ConversationHandler.END
-
-    raw = update.message.text.strip()
-    amount = state["data"].get("amount", 0)
-    photo_id = state["data"].get("photo_id")
-    src = state["data"].get("upi_source", "other")
-
-    if not amount or not photo_id:
-        await update.message.reply_text(
-            "❌ Payment data missing.\n💡 Please /start and try again.",
+    u = get_user_data(user_id)
+    if u.get("balance", 0) < SERVICE_ADD_FEE:
+        await query.edit_message_text(
+            f"❌ Need ₹{SERVICE_ADD_FEE} to list a service.\n💳 You have: ₹{u.get('balance', 0)}",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("➕ Add Funds", callback_data="add_funds")],
+                [InlineKeyboardButton("🔙 Back", callback_data="server2_home")]
+            ]),
             parse_mode='Markdown'
         )
-        clear_user_state(user_id)
         return ConversationHandler.END
-
-    username = data["users"][str(user_id)].get("username", f"User_{user_id}")
-    safe_username = escape_markdown(username)
-
-    # Enforce format by source
-    if src == "fampay":
-        if not is_valid_txn_id_format(raw):
-            keyboard = [[InlineKeyboardButton("🔙 Back", callback_data="upisrc_back")]]
-            await update.message.reply_text(
-                "❌ Invalid *Transaction ID*.\n\n"
-                "For FamPay, send an alphanumeric Transaction ID (letters + digits, 8–30 chars).\n"
-                "💡 Example: `FMPIB5334310018`\n\n"
-                "Or press Back to change UPI app.",
-                reply_markup=InlineKeyboardMarkup(keyboard),
-                parse_mode='Markdown'
-            )
-            return WAITING_FOR_UTR
-        id_type, idval = ("txn", raw.upper())
-    else:
-        v = raw.strip()
-        if not (v.isdigit() and len(v) == 12):
-            keyboard = [[InlineKeyboardButton("🔙 Back", callback_data="upisrc_back")]]
-            await update.message.reply_text(
-                "❌ Invalid *UTR number*.\n\n"
-                "For Other UPI, send a *12 digit* UTR (numbers only).\n"
-                "💡 Example: `612004984273`\n\n"
-                "Or press Back to change UPI app.",
-                reply_markup=InlineKeyboardMarkup(keyboard),
-                parse_mode='Markdown'
-            )
-            return WAITING_FOR_UTR
-        id_type, idval = ("utr", v)
-
-    pretty_type = "Transaction ID" if id_type == "txn" else "UTR"
-
-    # ✅ FIXED: Wrap everything in try-except to avoid "Error occurred, try /start"
-    try:
-        if is_utr_used(idval):
-            await log_auto_approve_attempt(context, user_id, username, amount, idval,
-                                           "REJECTED", f"{pretty_type} already used", id_type=pretty_type)
-            await update.message.reply_text(
-                f"❌ *This {pretty_type} has already been used!*\n\n"
-                f"💡 Please make a fresh payment.\n"
-                f"📞 Contact: @{OWNER_TG_USERNAME}",
-                parse_mode='Markdown'
-            )
-            clear_user_state(user_id)
-            return ConversationHandler.END
-
-        if str(user_id) not in data["pending_payments"]:
-            data["pending_payments"][str(user_id)] = {}
-        data["pending_payments"][str(user_id)].update({
-            "amount": amount, "photo_id": photo_id, "utr": idval,
-            "id_type": id_type, "upi_source": src,
-            "timestamp": datetime.now().isoformat(), "status": "submitted"
-        })
-        save_data(data)
-
-        verifying_msg = None
-        try:
-            verifying_msg = await update.message.reply_text(
-                f"🤖 *Auto-verifying...*\n\n💰 ₹{amount}.00\n🔢 {pretty_type}: `{escape_markdown(idval)}`\n"
-                f"⏳ Checking (max {AUTO_VERIFY_TIMEOUT}s)...",
-                parse_mode='Markdown'
-            )
-        except Exception as e:
-            logger.error(f"[VERIFY MSG ERROR] {e}")
-
-        result = await auto_verify_id(idval, id_type, amount)
-        paired_txn = result.get("txn_id")
-        paired_utr = result.get("utr")
-        if paired_txn or paired_utr:
-            data["pending_payments"][str(user_id)]["paired_txn"] = paired_txn
-            data["pending_payments"][str(user_id)]["paired_utr"] = paired_utr
-            save_data(data)
-
-        # CASE 1: found + match
-        if result.get("found") and result.get("matched_amount") and not result.get("too_old"):
-            data["users"][str(user_id)]["balance"] += amount
-            data["pending_payments"][str(user_id)]["status"] = "approved"
-            mark_utr_used(idval, user_id, amount, mode="auto")
-            if paired_txn and paired_txn.upper() != idval.upper():
-                mark_utr_used(paired_txn, user_id, amount, mode="auto_paired")
-            if paired_utr and paired_utr != idval:
-                mark_utr_used(paired_utr, user_id, amount, mode="auto_paired")
-            save_data(data)
-            await log_auto_approve_attempt(context, user_id, username, amount, idval, "AUTO APPROVED", "Payment verified & amount matched", id_type=pretty_type)
-            await log_payment_approved(context, user_id, username, amount, mode="AUTO")
-            success_text = (
-                f"✅ *Payment Auto-Approved!*\n\n"
-                f"💰 Amount: ₹{amount}.00\n"
-                f"🔢 {pretty_type}: `{escape_markdown(idval)}`\n"
-                f"💳 New Balance: ₹{data['users'][str(user_id)]['balance']}.00\n\n"
-                f"🎉 Your funds have been added successfully!"
-            )
-            if verifying_msg:
-                try:
-                    await verifying_msg.edit_text(success_text, parse_mode='Markdown')
-                except:
-                    await update.message.reply_text(success_text, parse_mode='Markdown')
-            else:
-                await update.message.reply_text(success_text, parse_mode='Markdown')
-            clear_user_state(user_id)
-            return ConversationHandler.END
-
-        # CASE 2: found + mismatch
-        if result.get("found") and not result.get("matched_amount") and not result.get("too_old"):
-            found_amt = result.get("found_amount")
-            mark_utr_used(idval, user_id, amount, mode="auto_failed_mismatch")
-            data["pending_payments"][str(user_id)]["status"] = "rejected_mismatch"
-            save_data(data)
-            await log_auto_approve_attempt(context, user_id, username, amount, idval,
-                                           "AMOUNT MISMATCH", f"Expected ₹{amount}, found ₹{found_amt}", id_type=pretty_type)
-            mismatch_text = (
-                f"❌ *Amount Mismatch!*\n\n"
-                f"💰 You entered: ₹{amount}.00\n"
-                f"💰 Payment found: ₹{found_amt}\n\n"
-                f"📝 The amount you paid does not match with the amount entered.\n\n"
-                f"📞 Contact owner: @{OWNER_TG_USERNAME}"
-            )
-            if verifying_msg:
-                try:
-                    await verifying_msg.edit_text(mismatch_text, parse_mode='Markdown')
-                except:
-                    await update.message.reply_text(mismatch_text, parse_mode='Markdown')
-            else:
-                await update.message.reply_text(mismatch_text, parse_mode='Markdown')
-            clear_user_state(user_id)
-            return ConversationHandler.END
-
-        # CASE 3: too old
-        if result.get("too_old"):
-            mark_utr_used(idval, user_id, amount, mode="auto_failed_too_old")
-            data["pending_payments"][str(user_id)]["status"] = "rejected_old_utr"
-            save_data(data)
-            await log_auto_approve_attempt(context, user_id, username, amount, idval,
-                                           "ID TOO OLD", f"Payment older than {UTR_MAX_AGE_HOURS}h", id_type=pretty_type)
-            old_text = (
-                f"❌ *Payment Too Old!*\n\n"
-                f"⏰ Only last {UTR_MAX_AGE_HOURS} hour(s) payments accepted.\n"
-                f"🔢 {pretty_type}: `{escape_markdown(idval)}`\n\n"
-                f"📞 Contact owner: @{OWNER_TG_USERNAME}"
-            )
-            if verifying_msg:
-                try:
-                    await verifying_msg.edit_text(old_text, parse_mode='Markdown')
-                except:
-                    await update.message.reply_text(old_text, parse_mode='Markdown')
-            else:
-                await update.message.reply_text(old_text, parse_mode='Markdown')
-            clear_user_state(user_id)
-            return ConversationHandler.END
-
-        # CASE 4: manual review
-        data["pending_payments"][str(user_id)]["status"] = "manual_review"
-        save_data(data)
-        err = result.get("error")
-        if err == "timeout":
-            fail_reason = f"Auto verification timed out ({AUTO_VERIFY_TIMEOUT}s). Manual review needed."
-        elif err:
-            fail_reason = f"System check delayed. Sent for manual review."
-        else:
-            fail_reason = f"{pretty_type} not yet found in email records. Manual review requested."
-        await log_auto_approve_attempt(context, user_id, username, amount, idval, "MANUAL REVIEW", fail_reason, id_type=pretty_type)
-
-        try:
-            keyboard_owner = [[
-                InlineKeyboardButton("✅ APPROVE", callback_data=f"approve_fund_{user_id}"),
-                InlineKeyboardButton("❌ REJECT", callback_data=f"reject_fund_{user_id}")
-            ]]
-            await context.bot.send_photo(
-                chat_id=OWNER_ID, photo=photo_id,
-                caption=f"💳 *Manual Payment Review*\n\n"
-                        f"👤 {safe_username}\n🆔 `{user_id}`\n"
-                        f"💰 ₹{amount}.00\n🔢 {pretty_type}: `{escape_markdown(idval)}`\n"
-                        f"📱 Source: {src}\n📝 {escape_markdown(fail_reason)}",
-                reply_markup=InlineKeyboardMarkup(keyboard_owner), parse_mode='Markdown'
-            )
-        except Exception as e:
-            logger.error(f"[FORWARD ERROR] {e}")
-
-        manual_text = (
-            f"⚠️ *Auto verification pending*\n\n"
-            f"💰 Amount: ₹{amount}.00\n"
-            f"🔢 {pretty_type}: `{escape_markdown(idval)}`\n\n"
-            f"📝 Reason: {escape_markdown(fail_reason)}\n\n"
-            f"📨 Your payment has been forwarded to the owner for *manual approval*.\n"
-            f"⏰ Please wait, you will be notified once approved.\n\n"
-            f"📞 For urgent help: @{OWNER_TG_USERNAME}"
-        )
-        if verifying_msg:
-            try:
-                await verifying_msg.edit_text(manual_text, parse_mode='Markdown')
-            except:
-                await update.message.reply_text(manual_text, parse_mode='Markdown')
-        else:
-            await update.message.reply_text(manual_text, parse_mode='Markdown')
-        clear_user_state(user_id)
-        return ConversationHandler.END
-
-    except Exception as e:
-        logger.error(f"[UTR HANDLER ERROR] {e}")
-        try:
-            # Send to owner for manual review anyway
-            keyboard_owner = [[
-                InlineKeyboardButton("✅ APPROVE", callback_data=f"approve_fund_{user_id}"),
-                InlineKeyboardButton("❌ REJECT", callback_data=f"reject_fund_{user_id}")
-            ]]
-            await context.bot.send_photo(
-                chat_id=OWNER_ID, photo=photo_id,
-                caption=f"💳 *Manual Payment Review (System Issue)*\n\n"
-                        f"👤 {safe_username}\n🆔 `{user_id}`\n"
-                        f"💰 ₹{amount}.00\n🔢 {pretty_type}: `{escape_markdown(idval)}`\n"
-                        f"📱 Source: {src}\n📝 System had temporary issue - please verify manually.",
-                reply_markup=InlineKeyboardMarkup(keyboard_owner), parse_mode='Markdown'
-            )
-        except:
-            pass
-        await update.message.reply_text(
-            f"⚠️ *Verification queued*\n\n"
-            f"Your payment details have been recorded and sent to owner for manual review.\n\n"
-            f"💰 Amount: ₹{amount}.00\n"
-            f"🔢 {pretty_type}: `{escape_markdown(idval)}`\n\n"
-            f"📞 Contact: @{OWNER_TG_USERNAME}",
-            parse_mode='Markdown'
-        )
-        clear_user_state(user_id)
-        return ConversationHandler.END
-
-# ============ COUPON REDEEM ============
-async def ask_coupon_code(update, context):
-    query = update.callback_query
-    await query.answer()
-    user_id = update.effective_user.id
-    await query.edit_message_text("🎟 *Redeem Coupon*\n\n💡 Enter code:", parse_mode='Markdown')
-    set_user_state(user_id, WAITING_FOR_COUPON)
-    return WAITING_FOR_COUPON
-
-async def handle_coupon_input(update, context):
-    user_id = update.effective_user.id
-    code = update.message.text.strip().upper()
-    username = data["users"][str(user_id)]["username"]
-    if code not in data["coupons"]:
-        await update.message.reply_text("❌ Invalid coupon!", parse_mode='Markdown')
-        clear_user_state(user_id)
-        return ConversationHandler.END
-    cinfo = data["coupons"][code]
-    if cinfo["used"]:
-        await update.message.reply_text("❌ Coupon already used!", parse_mode='Markdown')
-        clear_user_state(user_id)
-        return ConversationHandler.END
-    amount = cinfo["amount"]
-    data["coupons"][code]["used"] = True
-    data["coupons"][code]["used_by"] = user_id
-    data["coupons"][code]["used_at"] = datetime.now().isoformat()
-    data["users"][str(user_id)]["balance"] += amount
-    save_data(data)
-    await log_coupon_redeemed(context, user_id, username, code, amount)
-    await update.message.reply_text(
-        f"✅ Coupon Redeemed!\n💰 ₹{amount}.00\n💳 New Balance: ₹{data['users'][str(user_id)]['balance']}.00",
+    set_user_state(user_id, WAITING_SERVICE_NAME, {})
+    await query.edit_message_text(
+        f"➕ *Add Service* (fee ₹{SERVICE_ADD_FEE})\n\n📝 Step 1/4: Send service name (2-60 chars):",
         parse_mode='Markdown'
     )
-    clear_user_state(user_id)
-    return ConversationHandler.END
+    return WAITING_SERVICE_NAME
 
-# ============ /addaccount FLOW ============
-async def addaccount_cmd(update, context):
-    user_id = update.effective_user.id
-    if not is_owner(user_id):
-        await update.message.reply_text("❌ Unauthorized!")
-        return ConversationHandler.END
-    keyboard = [
-        [InlineKeyboardButton("🛒 Buy Account", callback_data="addacc_ch_buy"),
-         InlineKeyboardButton("♻️ Resale", callback_data="addacc_ch_resale")]
-    ]
-    await update.message.reply_text(
-        "➕ *Add Account*\n\nSelect channel where this account should go:",
-        reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown'
-    )
-    set_user_state(user_id, WAITING_FOR_ADDACC_CHANNEL, {})
-    return WAITING_FOR_ADDACC_CHANNEL
+def normalize_username(u):
+    u = u.strip()
+    if not u:
+        return ""
+    if u.startswith("http"):
+        u = u.rsplit("/", 1)[-1]
+    if not u.startswith("@"):
+        u = "@" + u
+    return u
 
-async def addacc_pick_channel(update, context):
-    query = update.callback_query
-    await query.answer()
+async def srv2_service_name_input(update, context):
     user_id = update.effective_user.id
-    if not is_owner(user_id):
-        return
-    ch = "buy" if query.data.endswith("_buy") else "resale"
-    set_user_state(user_id, WAITING_FOR_COUNTRY, {"channel": ch})
-    await query.edit_message_text(
-        f"✅ Channel: *{'Buy Account' if ch=='buy' else 'Resale'}*\n\n"
-        f"📝 Enter country name (e.g. USA, INDIA):",
-        parse_mode='Markdown'
-    )
-
-async def owner_add_number(update, context):
-    query = update.callback_query
-    await query.answer()
-    user_id = update.effective_user.id
-    if not is_owner(user_id):
-        return
-    keyboard = [
-        [InlineKeyboardButton("🛒 Buy Account", callback_data="addacc_ch_buy"),
-         InlineKeyboardButton("♻️ Resale", callback_data="addacc_ch_resale")]
-    ]
-    await query.edit_message_text(
-        "➕ *Add Account*\n\nSelect channel:",
-        reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown'
-    )
-    set_user_state(user_id, WAITING_FOR_ADDACC_CHANNEL, {})
-    return WAITING_FOR_ADDACC_CHANNEL
-
-async def handle_country_input(update, context):
-    user_id = update.effective_user.id
-    if not is_owner(user_id):
-        return ConversationHandler.END
-    country = update.message.text.strip().upper()
+    name = update.message.text.strip()
+    if len(name) < 2 or len(name) > 60:
+        await update.message.reply_text("❌ Name 2-60 chars. Try again.")
+        return WAITING_SERVICE_NAME
     st = get_user_state(user_id)
-    channel = st.get("data", {}).get("channel", "buy")
-    ch = _channel_dict(channel)
-    if country in ch:
-        existing = ch[country]
-        await update.message.reply_text(
-            f"⚠️ *'{country}' exists in {channel.upper()}!*\n"
-            f"• Price: ₹{existing['price']}\n• Stock: {existing['quantity']}\n\n"
-            f"Type `ADD` to add more, `NEW` to change price, `CANCEL` to abort.",
-            parse_mode='Markdown'
-        )
-        set_user_state(user_id, WAITING_FOR_ADD_MORE_SESSIONS,
-                       {"country": country, "price": existing['price'], "channel": channel})
-        return WAITING_FOR_ADD_MORE_SESSIONS
-    set_user_state(user_id, WAITING_FOR_PRICE, {"country": country, "channel": channel})
-    await update.message.reply_text(f"💰 *Set Price for {country}*\n\n📝 Enter price in INR:", parse_mode='Markdown')
-    return WAITING_FOR_PRICE
+    st["data"]["name"] = name
+    set_user_state(user_id, WAITING_SERVICE_PRICE, st["data"])
+    await update.message.reply_text("📝 Step 2/4: Send price in INR (number only).", parse_mode='Markdown')
+    return WAITING_SERVICE_PRICE
 
-async def handle_add_more_choice(update, context):
+async def srv2_service_price_input(update, context):
     user_id = update.effective_user.id
-    if not is_owner(user_id):
-        return ConversationHandler.END
-    choice = update.message.text.strip().upper()
-    st = get_user_state(user_id)
-    country = st["data"]["country"]
-    price = st["data"]["price"]
-    channel = st["data"].get("channel", "buy")
-    if choice == "CANCEL":
-        await update.message.reply_text("❌ Cancelled!")
-        clear_user_state(user_id)
-        return ConversationHandler.END
-    if choice == "ADD":
-        set_user_state(user_id, WAITING_FOR_SESSION, {"country": country, "price": price, "channel": channel})
-        await update.message.reply_text(f"🔗 Send session string for {country}:")
-        return WAITING_FOR_SESSION
-    if choice == "NEW":
-        set_user_state(user_id, WAITING_FOR_PRICE, {"country": country, "channel": channel})
-        await update.message.reply_text(f"💰 Enter new price:")
-        return WAITING_FOR_PRICE
-    await update.message.reply_text("❌ Type ADD, NEW, or CANCEL")
-    return WAITING_FOR_ADD_MORE_SESSIONS
-
-async def handle_price_input(update, context):
-    user_id = update.effective_user.id
-    if not is_owner(user_id):
-        return ConversationHandler.END
     try:
         price = int(update.message.text.strip())
-        st = get_user_state(user_id)
-        country = st["data"]["country"]
-        channel = st["data"].get("channel", "buy")
-        ch = _channel_dict(channel)
-        if country not in ch:
-            ch[country] = {"price": price, "quantity": 0, "sessions": []}
-        else:
-            ch[country]["price"] = price
-        save_data(data)
-        set_user_state(user_id, WAITING_FOR_SESSION, {"country": country, "price": price, "channel": channel})
-        await update.message.reply_text(f"🔗 Send session string for {country} (channel: {channel}):")
-        return WAITING_FOR_SESSION
-    except ValueError:
-        await update.message.reply_text("❌ Numbers only!")
-        return WAITING_FOR_PRICE
-
-async def handle_session_input(update, context):
-    user_id = update.effective_user.id
-    if not is_owner(user_id):
-        return ConversationHandler.END
-    text = update.message.text.strip()
-    st = get_user_state(user_id)
-    country = st["data"]["country"]
-    price = st["data"]["price"]
-    channel = st["data"].get("channel", "buy")
-    if text == "/skip":
-        clear_user_state(user_id)
-        await update.message.reply_text(f"✅ Done for {country} ({channel})!")
-        return ConversationHandler.END
-    if len(text) < 50:
-        await update.message.reply_text("❌ Invalid session string.")
-        return WAITING_FOR_SESSION
-    st["data"]["pending_session"] = text
-    set_user_state(user_id, WAITING_FOR_2FA, st["data"])
-    await update.message.reply_text("🔐 Send 2FA password, or `/skip` if none.", parse_mode='Markdown')
-    return WAITING_FOR_2FA
-
-async def handle_2fa_input(update, context):
-    user_id = update.effective_user.id
-    if not is_owner(user_id):
-        return ConversationHandler.END
-    text = update.message.text.strip()
-    st = get_user_state(user_id)
-    country = st["data"]["country"]
-    price = st["data"]["price"]
-    channel = st["data"].get("channel", "buy")
-    session_str = st["data"].get("pending_session")
-    twofa = None if text == "/skip" else text
-
-    phone_number = "N/A"
-    try:
-        client = await create_client(session_str, f"add_{user_id}")
-        if client:
-            phone_number = await get_phone_number(client)
-            await client.stop()
+        if price <= 0:
+            raise ValueError()
     except:
-        pass
+        await update.message.reply_text("❌ Price must be integer > 0.")
+        return WAITING_SERVICE_PRICE
+    st = get_user_state(user_id)
+    st["data"]["price"] = price
+    set_user_state(user_id, WAITING_SERVICE_CONTACT, st["data"])
+    await update.message.reply_text("📝 Step 3/4: Send your Telegram username (e.g. @yourname).", parse_mode='Markdown')
+    return WAITING_SERVICE_CONTACT
 
-    ch = _channel_dict(channel)
-    if country not in ch:
-        ch[country] = {"price": price, "quantity": 0, "sessions": []}
-    ch[country]["sessions"].append({"session": session_str, "phone_number": phone_number, "twofa": twofa})
-    ch[country]["quantity"] += 1
+async def srv2_service_contact_input(update, context):
+    user_id = update.effective_user.id
+    contact = normalize_username(update.message.text.strip())
+    if not contact or len(contact) < 3:
+        await update.message.reply_text("❌ Invalid username.")
+        return WAITING_SERVICE_CONTACT
+    st = get_user_state(user_id)
+    st["data"]["contact"] = contact
+    set_user_state(user_id, WAITING_SERVICE_DESC, st["data"])
+    await update.message.reply_text("📝 Step 4/4: Send description (10-400 chars):", parse_mode='Markdown')
+    return WAITING_SERVICE_DESC
+
+async def srv2_service_desc_input(update, context):
+    user_id = update.effective_user.id
+    desc = update.message.text.strip()
+    if len(desc) < 10 or len(desc) > 400:
+        await update.message.reply_text("❌ Description 10-400 chars. Try again.")
+        return WAITING_SERVICE_DESC
+    st = get_user_state(user_id)
+    sd = st["data"]
+
+    u = get_user_data(user_id)
+    bal = int(u.get("balance", 0))
+    if bal < SERVICE_ADD_FEE:
+        await update.message.reply_text("❌ Not enough balance for the listing fee anymore.")
+        clear_user_state(user_id)
+        return ConversationHandler.END
+    data["users"][str(user_id)]["balance"] -= SERVICE_ADD_FEE
+    data["service_seq"] = data.get("service_seq", 0) + 1
+    sid = f"S{data['service_seq']:05d}"
+    data["services"][sid] = {
+        "id": sid,
+        "owner_id": user_id,
+        "name": sd["name"],
+        "price": sd["price"],
+        "contact": sd["contact"],
+        "desc": desc,
+        "created": datetime.now().isoformat()
+    }
     save_data(data)
-    await log_session_added(context, country, 1, price, phone_number, twofa, channel=channel)
     await update.message.reply_text(
-        f"✅ Session added to *{channel.upper()}*!\n"
-        f"📱 Phone: `{phone_number}`\n📦 Stock: {ch[country]['quantity']}\n\n"
-        f"📝 Send another session or `/skip` to finish.",
+        f"✅ *Service Listed!*\n\n"
+        f"🆔 `{sid}`\n"
+        f"📛 {escape_markdown(sd['name'])}\n"
+        f"💰 ₹{sd['price']}\n\n"
+        f"Listing fee ₹{SERVICE_ADD_FEE} deducted.",
         parse_mode='Markdown'
     )
-    set_user_state(user_id, WAITING_FOR_SESSION, {"country": country, "price": price, "channel": channel})
-    return WAITING_FOR_SESSION
+    clear_user_state(user_id)
+    return ConversationHandler.END
 
-# ============ DELETE COUNTRY ============
-async def owner_delete_country(update, context):
-    query = update.callback_query
-    await query.answer()
+async def myservice_cmd(update, context):
     user_id = update.effective_user.id
-    if not is_owner(user_id):
+    services = [s for s in data.get("services", {}).values() if s.get("owner_id") == user_id]
+    if not services:
+        await update.message.reply_text("📭 You have no services listed.")
         return
+    text = "🛒 *Your Services*\n\n"
     keyboard = []
-    for c in data["accounts"].keys():
-        keyboard.append([InlineKeyboardButton(f"🗑 BUY: {c}", callback_data=f"delete_confirm_buy_{c}")])
-    for c in data.get("resale_accounts", {}).keys():
-        keyboard.append([InlineKeyboardButton(f"🗑 RESALE: {c}", callback_data=f"delete_confirm_resale_{c}")])
-    if not keyboard:
-        await query.edit_message_text(
-            "📭 Nothing to delete!",
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Panel", callback_data="owner_panel")]]),
-            parse_mode='Markdown'
-        )
-        return
-    keyboard.append([InlineKeyboardButton("🔙 Back", callback_data="owner_panel")])
-    await query.edit_message_text("🗑 *Delete Country*", reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    for s in services:
+        text += f"• `{s['id']}` — {escape_markdown(s['name'])} — ₹{s['price']}\n"
+        keyboard.append([InlineKeyboardButton(f"❌ Delete {s['id']}", callback_data=f"serv_del_{s['id']}")])
+    await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
 
-async def confirm_delete_country(update, context):
+async def allservices_cmd(update, context):
+    services = data.get("services", {})
+    if not services:
+        await update.message.reply_text("📭 No services listed.")
+        return
+    text = "📋 *All Services*\n\n"
+    for s in list(services.values())[:30]:
+        text += f"• `{s['id']}` — {escape_markdown(s['name'])} — ₹{s['price']} — {escape_markdown(s.get('contact', ''))}\n"
+    await update.message.reply_text(text, parse_mode='Markdown')
+
+async def myserv_view(update, context):
+    await update.callback_query.answer()
+
+async def ownserv_view(update, context):
+    await update.callback_query.answer()
+
+async def serv_delete(update, context):
     query = update.callback_query
     await query.answer()
     user_id = update.effective_user.id
-    parts = query.data.split("_")
-    channel = parts[2]
-    country = "_".join(parts[3:])
-    if not is_owner(user_id):
+    sid = query.data.replace("serv_del_", "")
+    s = data.get("services", {}).get(sid)
+    if not s:
+        await query.answer("Not found", show_alert=True)
         return
-    ch = _channel_dict(channel)
-    if country in ch:
-        q = ch[country]["quantity"]; p = ch[country]["price"]
-        await log_country_deleted(context, country, q, p, channel=channel)
-        del ch[country]
-        save_data(data)
-        text = f"✅ Deleted from {channel.upper()}: {country}"
-    else:
-        text = "❌ Not found."
-    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Panel", callback_data="owner_panel")]]), parse_mode='Markdown')
-
-# ============ SET BOT PHOTO ============
-async def set_bot_photo(update, context):
-    user_id = update.effective_user.id
-    if not is_owner(user_id):
+    if s.get("owner_id") != user_id and not is_owner(user_id):
+        await query.answer("Not yours", show_alert=True)
         return
-    if update.callback_query:
-        await update.callback_query.edit_message_text("📸 Send bot picture:", parse_mode='Markdown')
-    else:
-        await update.message.reply_text("📸 Send bot picture:", parse_mode='Markdown')
-    set_user_state(user_id, WAITING_FOR_BOT_PHOTO)
-    return WAITING_FOR_BOT_PHOTO
-
-async def handle_photo_owner(update, context):
-    user_id = update.effective_user.id
-    state = get_user_state(user_id)
-    if state["state"] == WAITING_FOR_SCREENSHOT:
-        return await handle_screenshot(update, context)
-    if state["state"] != WAITING_FOR_BOT_PHOTO or not is_owner(user_id):
-        return ConversationHandler.END
-    photo = update.message.photo[-1]
-    data["bot_photo"] = photo.file_id
+    del data["services"][sid]
     save_data(data)
-    await update.message.reply_text("✅ Bot photo updated!", parse_mode='Markdown')
-    clear_user_state(user_id)
-    return ConversationHandler.END
+    await query.edit_message_text(f"✅ Deleted `{sid}`", parse_mode='Markdown')
 
-# ============ DISCOUNT APPLY ============
-async def apply_discount(update, context):
-    query = update.callback_query
-    await query.answer()
-    user_id = update.effective_user.id
-    await query.edit_message_text("🎟 *Apply Discount*\n\n💡 Enter code:", parse_mode='Markdown')
-    set_user_state(user_id, WAITING_FOR_DISCOUNT_CODE)
-    return WAITING_FOR_DISCOUNT_CODE
-
-async def handle_discount_code(update, context):
-    user_id = update.effective_user.id
-    state = get_user_state(user_id)
-    if state["state"] != WAITING_FOR_DISCOUNT_CODE:
-        return ConversationHandler.END
-    code = update.message.text.strip().upper()
-    if code not in data["discount_codes"]:
-        await update.message.reply_text("❌ Invalid code!")
-        clear_user_state(user_id)
-        return ConversationHandler.END
-    if has_used_discount(user_id, code):
-        await update.message.reply_text("❌ You already used this discount code!")
-        clear_user_state(user_id)
-        return ConversationHandler.END
-    dinfo = data["discount_codes"][code]
-    da = dinfo["discount"]
-    mark_discount_used(user_id, code)
-    await log_discount_applied(context, user_id, data["users"][str(user_id)]["username"], code, da)
-    await update.message.reply_text(
-        f"✅ Discount Applied!\n🎟 Code: `{code}`\n💰 ₹{da}.00",
-        parse_mode='Markdown'
-    )
-    clear_user_state(user_id)
-    return ConversationHandler.END
-
-# =========================================================
-# =============== 🤖 AI MANAGEMENT (GROUPS) ===============
-# =========================================================
+# ============ 🤖 AI (GROUPS) — FULL BOT ACCESS ============
 async def ai_toggle(update, context):
     user_id = update.effective_user.id
     if not is_owner(user_id):
@@ -3411,11 +3200,12 @@ def _ai_memory_get(user_id):
 def _ai_memory_append(user_id, role, content):
     entry = _ai_memory_get(user_id)
     entry.setdefault("history", []).append({"role": role, "content": content, "ts": datetime.now().isoformat()})
-    entry["history"] = entry["history"][-20:]
+    entry["history"] = entry["history"][-20:]  # keep last 20 turns
     data["ai_memory"][str(user_id)] = entry
     save_data(data)
 
-def _user_context_snapshot(user_id):
+def _build_full_bot_snapshot(user_id):
+    """Give AI FULL knowledge of the bot: stock, sales, revenue, this user's data."""
     u = data["users"].get(str(user_id), {})
     purchases = u.get("purchases", [])
     last_purchases = []
@@ -3438,50 +3228,54 @@ def _user_context_snapshot(user_id):
             "upi_source": pending.get("upi_source"),
             "timestamp": pending.get("timestamp")
         }
-    return {
-        "user_id": user_id,
-        "username": u.get("username", f"User_{user_id}"),
-        "balance": u.get("balance", 0),
-        "total_purchases": len(purchases),
-        "total_spent": sum(p.get("price", 0) for p in purchases),
-        "last_purchases": last_purchases,
-        "pending_payment": pending_summary
-    }
 
-def _full_bot_snapshot():
-    """✅ NEW: Complete bot state for AI - stock, sales, all data."""
+    # Buy channel stock summary
     buy_stock = {}
-    for country, info in data.get("accounts", {}).items():
-        buy_stock[country] = {
-            "quantity": info.get("quantity", 0),
-            "price": info.get("price", 0)
-        }
+    for c, info in data.get("accounts", {}).items():
+        buy_stock[c] = {"stock": info.get("quantity", 0), "price": info.get("price", 0)}
+    # Resale channel stock summary
     resale_stock = {}
-    for country, info in data.get("resale_accounts", {}).items():
-        resale_stock[country] = {
-            "quantity": info.get("quantity", 0),
-            "price": info.get("price", 0)
-        }
-    sales_stats = data.get("sales_stats", {})
-    total_users = len(data.get("users", {}))
-    total_revenue = sum(
-        p.get("price", 0) for u in data.get("users", {}).values()
-        for p in u.get("purchases", []) if p.get("status") == "completed"
-    )
-    total_buy_stock = sum(i.get("quantity", 0) for i in data.get("accounts", {}).values())
-    total_resale_stock = sum(i.get("quantity", 0) for i in data.get("resale_accounts", {}).values())
+    for c, info in data.get("resale_accounts", {}).items():
+        resale_stock[c] = {"stock": info.get("quantity", 0), "price": info.get("price", 0)}
+
+    # Sales analytics
+    sales_log = data.get("sales_log", [])
+    country_sales = {}
+    total_sold = 0
+    total_revenue = 0
+    for s in sales_log:
+        c = s.get("country", "?")
+        qty = s.get("quantity", 0)
+        rev = s.get("price", 0)
+        total_sold += qty
+        total_revenue += rev
+        if c not in country_sales:
+            country_sales[c] = {"count": 0, "revenue": 0}
+        country_sales[c]["count"] += qty
+        country_sales[c]["revenue"] += rev
+
+    top_countries = sorted(country_sales.items(), key=lambda x: x[1]["count"], reverse=True)[:5]
+
     return {
-        "buy_accounts_available": buy_stock,
-        "resale_accounts_available": resale_stock,
-        "sales_stats_per_country": sales_stats,
-        "total_users_in_bot": total_users,
-        "total_revenue_inr": total_revenue,
-        "total_buy_stock": total_buy_stock,
-        "total_resale_stock": total_resale_stock,
-        "upi_id": UPI_ID,
-        "min_deposit": MIN_DEPOSIT,
-        "resale_source_bot": RESALE_BUYER_BOT,
-        "owner_contact": OWNER_TG_LINK
+        "you": {
+            "user_id": user_id,
+            "username": u.get("username", f"User_{user_id}"),
+            "balance": u.get("balance", 0),
+            "last_purchases": last_purchases,
+            "pending_payment": pending_summary
+        },
+        "bot_inventory": {
+            "buy_channel": buy_stock,
+            "resale_channel": resale_stock,
+            "total_buy_stock": sum(v["stock"] for v in buy_stock.values()),
+            "total_resale_stock": sum(v["stock"] for v in resale_stock.values())
+        },
+        "bot_analytics": {
+            "total_users": len(data.get("users", {})),
+            "total_sales_recorded": total_sold,
+            "total_revenue_recorded": total_revenue,
+            "top_selling_countries": [{"country": c, "sold": v["count"], "revenue": v["revenue"]} for c, v in top_countries]
+        }
     }
 
 def _ai_should_answer_freeform(text_lower):
@@ -3489,13 +3283,13 @@ def _ai_should_answer_freeform(text_lower):
         return False
     triggers = [
         "help", "problem", "issue", "not working", "kaam nahi", "kaam nhi",
-        "not received", "nahi mila", "nhi aaya", "nhi aya", "nhi mila",
+        "not received", "nahi mila", "nhi aaya", "nhi aya",
         "payment", "fund", "add funds", "balance", "otp nahi", "otp nhi",
         "buy account", "resale", "kaise", "how to", "kaise karu", "kaise kare",
         "confusion", "confused", "samajh nahi", "samajh nhi", "please help",
         "owner", "kon owner", "who is owner", "malik", "support chahiye",
-        "stock", "kitna", "available", "price", "rate", "sell", "sold",
-        "kitne", "how many", "country", "countries", "देश", "क्या", "kya"
+        "stock", "kitna", "kitne", "available", "kaunsa", "konsa",
+        "price", "kimat", "kitna hai", "kya rate"
     ]
     return any(t in text_lower for t in triggers)
 
@@ -3558,28 +3352,30 @@ async def _call_groq_vision(image_url, prompt):
         logger.error(f"[VISION ERROR] {e}")
         return None
 
-def _build_ai_system_prompt(user_snapshot, bot_snapshot):
-    """✅ UPGRADED: Full bot access AI - knows stock, sales, everything."""
+def _build_ai_system_prompt(snapshot):
     return (
-        "You are a professional, calm, human-like support assistant for a Telegram bot called Zudo OTP Bot.\n"
-        "You have FULL access to the bot's live state — stock, sales, users, revenue, payments — via the JSON snapshots below.\n\n"
-        "STRICT STYLE RULES:\n"
-        "- NEVER use emojis at all.\n"
-        "- Match the user's tone (Hinglish or English) but stay polite and professional.\n"
+        "You are the official support AI of *Zudo OTP Bot* on Telegram. You have FULL knowledge of the bot's live state.\n\n"
+        "STYLE RULES (STRICT):\n"
+        "- Never use emojis.\n"
+        "- Match user's tone (Hinglish or English) but stay polite & professional.\n"
         "- Keep replies short, precise, direct. No filler.\n"
-        "- Never reveal internal admin data like API keys, session strings, user IDs of others, or database internals.\n"
-        "- Never invent data. Only use the JSON snapshots.\n"
-        "- Never claim you performed an admin action; you can only guide the user or, in urgent cases, tag the owner.\n"
-        f"- The owner is at {OWNER_TG_LINK}. If asked 'who is the owner', reply exactly with: {OWNER_TG_LINK}.\n"
-        "- Tag the owner (@" + OWNER_TG_USERNAME + ") only when strictly needed — genuine stuck payment where the user paid but did not get balance, or urgent issues that only owner can fix.\n"
-        "- Before requesting owner action, ask user to confirm details once.\n"
-        "- If user asks their balance, transactions, or purchases, use the user_snapshot.\n"
-        "- If user asks about stock, prices, available countries, best-selling country, total revenue, or bot stats, use the bot_snapshot — you have full permission to answer these.\n"
-        "- If a screenshot might help (payment issue), ask user to share it.\n\n"
-        "USER SNAPSHOT (private user data):\n"
-        f"{json.dumps(user_snapshot, ensure_ascii=False)}\n\n"
-        "BOT LIVE SNAPSHOT (public data you can share):\n"
-        f"{json.dumps(bot_snapshot, ensure_ascii=False)}\n"
+        "- Never reveal internal admin data, API keys, session strings, secrets, or the raw JSON snapshot.\n"
+        "- Never invent data. Only use the snapshot below.\n"
+        "- Never claim to have performed admin actions yourself; you can only guide.\n"
+        f"- Owner: {OWNER_TG_LINK}. If asked 'who is the owner', reply with the link {OWNER_TG_LINK}.\n"
+        f"- Only tag the owner (@{OWNER_TG_USERNAME}) when strictly necessary — e.g. user paid but balance not credited AND their pending_payment supports it.\n"
+        "- Before requesting owner action, ask user to confirm once (amount and UTR).\n\n"
+        "KNOWLEDGE YOU HAVE:\n"
+        "- Live stock of every country in Buy channel and Resale channel (see bot_inventory).\n"
+        "- Total users, total sales, total revenue, top selling countries (see bot_analytics).\n"
+        "- The current user's balance, recent purchases, and pending payment (see you).\n\n"
+        "HOW TO USE THIS DATA:\n"
+        "- If user asks 'kitna stock hai' or 'kaunsa country available hai', answer using bot_inventory.\n"
+        "- If user asks their balance / last purchase / pending payment, use `you`.\n"
+        "- If user asks about most-sold country or trending, use bot_analytics.top_selling_countries.\n"
+        "- If user reports a payment issue with matching pending_payment, gently offer to tag the owner.\n\n"
+        "LIVE SNAPSHOT (JSON, treat as source of truth):\n"
+        f"{json.dumps(snapshot, ensure_ascii=False)}\n"
     )
 
 async def group_ai_handler(update, context):
@@ -3619,10 +3415,9 @@ async def group_ai_handler(update, context):
         get_user_data(user.id)
         data["users"][str(user.id)]["username"] = user.username or user.first_name or f"User_{user.id}"
 
-        user_snapshot = _user_context_snapshot(user.id)
-        bot_snapshot = _full_bot_snapshot()
+        snapshot = _build_full_bot_snapshot(user.id)
         entry = _ai_memory_get(user.id)
-        system_prompt = _build_ai_system_prompt(user_snapshot, bot_snapshot)
+        system_prompt = _build_ai_system_prompt(snapshot)
 
         photo_url = None
         try:
@@ -3693,10 +3488,6 @@ async def button_handler(update, context):
             await srv2_view_service(update, context); return
         if data_str.startswith("srv2_buy_"):
             await srv2_buy_service(update, context); return
-        if data_str.startswith("myserv_view_"):
-            await myserv_view(update, context); return
-        if data_str.startswith("ownserv_view_"):
-            await ownserv_view(update, context); return
         if data_str.startswith("serv_del_"):
             await serv_delete(update, context); return
 
@@ -3716,35 +3507,30 @@ async def button_handler(update, context):
         if data_str == "coupon_code":
             return await ask_coupon_code(update, context)
 
-        # UPI source
+        # UPI source selection
         if data_str in ("upisrc_fampay", "upisrc_other"):
             await handle_upi_source(update, context); return
         if data_str == "upisrc_back":
             await handle_upi_source_back(update, context); return
-
-        # Resale channel — CHECK FIRST (before buy) since they have prefix
-        if data_str.startswith("rcountry_"):
-            country = data_str[len("rcountry_"):]
-            query.data = f"country_{country}"
-            await show_account_details(update, context, channel="resale"); return
-        if data_str.startswith("rbuy_number_"):
-            return await process_buy_number(update, context, channel="resale")
-        if data_str.startswith("rcnfbuy_"):
-            await confirm_purchase_resale(update, context); return
 
         # Buy channel
         if data_str.startswith("country_"):
             await show_account_details(update, context, channel="buy"); return
         if data_str.startswith("buy_number_"):
             return await process_buy_number(update, context, channel="buy")
-        if data_str.startswith("cnfbuy_"):
-            await confirm_purchase_buy(update, context); return
-        # Legacy confirm_buy_ callbacks
         if data_str.startswith("confirm_buy_"):
-            # convert to new format
-            payload = data_str[len("confirm_buy_"):]
-            query.data = f"cnfbuy_{payload}"
             await confirm_purchase_buy(update, context); return
+
+        # Resale channel — properly rewrite the callback data
+        if data_str.startswith("rcountry_"):
+            query.data = "country_" + data_str[len("rcountry_"):]
+            await show_account_details(update, context, channel="resale"); return
+        if data_str.startswith("rbuy_number_"):
+            query.data = "buy_number_" + data_str[len("rbuy_number_"):]
+            return await process_buy_number(update, context, channel="resale")
+        if data_str.startswith("rconfirm_buy_"):
+            query.data = "confirm_buy_" + data_str[len("rconfirm_buy_"):]
+            await confirm_purchase_resale(update, context); return
 
         if data_str.startswith("get_number_"):
             await get_number_handler(update, context); return
@@ -3762,6 +3548,8 @@ async def button_handler(update, context):
             return await owner_add_number(update, context)
         if data_str in ("addacc_ch_buy", "addacc_ch_resale"):
             return await addacc_pick_channel(update, context)
+        if data_str in ("addmore_yes", "addmore_no"):
+            await addmore_callback(update, context); return
         if data_str == "owner_delete":
             await owner_delete_country(update, context); return
         if data_str.startswith("delete_confirm_"):
@@ -3795,21 +3583,12 @@ async def button_handler(update, context):
     except Exception as e:
         logger.error(f"[BUTTON ERROR] {type(e).__name__}('{str(e)}')")
         try:
-            await query.answer("❌ Error occurred! Try /start", show_alert=True)
+            await query.answer("❌ Please try again", show_alert=True)
         except:
             pass
 
 async def error_handler(update, context):
     logger.error(f"Error: {context.error}")
-    # Do not spam "Try /start" for known conversation flow issues
-    if update and update.effective_message:
-        err_str = str(context.error).lower()
-        if "message is not modified" in err_str or "query is too old" in err_str:
-            return
-        try:
-            await update.effective_message.reply_text("⚠️ Something went wrong. Please try again or contact support.")
-        except:
-            pass
 
 # ============ GLOBAL TEXT FALLBACK ============
 async def global_text_fallback(update, context):
@@ -3820,21 +3599,6 @@ async def global_text_fallback(update, context):
     user_id = update.effective_user.id
     st = get_user_state(user_id)
     cs = st["state"]
-
-    # ✅ Priority: check if there's a pending payment awaiting UTR (session recovery)
-    if cs == -1:
-        pp = data["pending_payments"].get(str(user_id))
-        if pp and pp.get("status") in ("awaiting_utr", "submitted") and not pp.get("utr"):
-            # Recover the UTR state
-            src = pp.get("upi_source")
-            if src:
-                set_user_state(user_id, WAITING_FOR_UTR, {
-                    "amount": pp["amount"],
-                    "photo_id": pp["photo_id"],
-                    "upi_source": src
-                })
-                return await handle_utr_input(update, context)
-
     if cs == WAITING_FOR_TARGET_USER_ID:
         return await owner_handle_target_user_id(update, context)
     if cs == WAITING_FOR_TARGET_AMOUNT:
@@ -3907,7 +3671,10 @@ def get_conversation_handler():
             WAITING_FOR_DISCOUNT_CODE: [MessageHandler(filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE, handle_discount_code)],
             WAITING_FOR_BOT_PHOTO: [MessageHandler(filters.PHOTO & filters.ChatType.PRIVATE, handle_photo_owner)],
             WAITING_FOR_QUANTITY: [MessageHandler(filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE, handle_quantity_input)],
-            WAITING_FOR_ADD_MORE_SESSIONS: [MessageHandler(filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE, handle_add_more_choice)],
+            WAITING_FOR_ADD_MORE_SESSIONS: [
+                CallbackQueryHandler(button_handler),
+                MessageHandler(filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE, handle_add_more_choice)
+            ],
             WAITING_FOR_BROADCAST_MESSAGE: [MessageHandler(filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE, handle_broadcast_message)],
             WAITING_FOR_TARGET_USER_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE, owner_handle_target_user_id)],
             WAITING_FOR_TARGET_AMOUNT: [MessageHandler(filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE, owner_handle_target_amount)],
@@ -3942,9 +3709,11 @@ def main():
     application.add_handler(CommandHandler("cancel", cancel_cmd))
     application.add_handler(CommandHandler("ai", ai_toggle))
 
+    # DM fallbacks
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE, global_text_fallback))
     application.add_handler(MessageHandler(filters.PHOTO & ~filters.COMMAND & filters.ChatType.PRIVATE, handle_photo_owner))
 
+    # Group AI
     application.add_handler(MessageHandler(
         (filters.TEXT | filters.PHOTO) & ~filters.COMMAND & (filters.ChatType.GROUP | filters.ChatType.SUPERGROUP),
         group_ai_handler
