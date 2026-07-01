@@ -30,7 +30,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 # ============ CONFIGURATION ============
-BOT_TOKEN = "8382836835:AAGpnIO5zX13Lv9fHjc8QpA-PSMhJXzQ5kA"
+BOT_TOKEN = "8309358322:AAFTTIQhHAIEy_7B42mspLUgBNClKFM1-ck"
 OWNER_ID = 7661825494
 API_ID = 33628258
 API_HASH = "0850762925b9c1715b9b122f7b753128"
