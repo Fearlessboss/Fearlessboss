@@ -40,8 +40,8 @@ MONGO_DB_NAME = "mydatabase"
 
 # Force Join Settings
 SUPPORT_CHANNEL_ID = -1003782083448
-SUPPORT_GROUP_ID = -1003857205137           # user-facing support group (unchanged)
-LOGS_GROUP_ID = -1003764994914              # ✅ NEW: logs group (bot logs go here)
+SUPPORT_GROUP_ID = -1003857205137
+LOGS_GROUP_ID = -1003764994914
 SUPPORT_CHANNEL_LINK = "https://t.me/zudootp"
 SUPPORT_GROUP_LINK = "https://t.me/zudootpsupport"
 
@@ -107,25 +107,69 @@ MAX_IMAGES   = 5
     WAITING_FOR_TARGET_AMOUNT,
     WAITING_FOR_UTR,
 
-    # SERVER 2
     WAITING_SERVICE_NAME,
     WAITING_SERVICE_PRICE,
     WAITING_SERVICE_CONTACT,
     WAITING_SERVICE_DESC,
 
-    # ✅ NEW: payment UPI-source selection
     WAITING_FOR_UPI_SOURCE,
 
-    # ✅ NEW: add-account channel selection (buy vs resale)
     WAITING_FOR_ADDACC_CHANNEL,
 
-    # ✅ NEW: /transfer
     WAITING_FOR_TRANSFER_USER,
     WAITING_FOR_TRANSFER_AMOUNT,
 
-    # ✅ NEW: /add balance flow — enter amount (after user id)
     WAITING_FOR_ADDBAL_AMOUNT
 ) = range(27)
+
+# Country flags mapping - expanded
+COUNTRY_FLAGS = {
+    "USA": "🇺🇸", "US": "🇺🇸", "UK": "🇬🇧", "INDIA": "🇮🇳", "CANADA": "🇨🇦",
+    "AUSTRALIA": "🇦🇺", "GERMANY": "🇩🇪", "FRANCE": "🇫🇷", "JAPAN": "🇯🇵",
+    "KENYA": "🇰🇪", "NIGERIA": "🇳🇬", "PAKISTAN": "🇵🇰", "CHINA": "🇨🇳",
+    "RUSSIA": "🇷🇺", "BRAZIL": "🇧🇷", "MEXICO": "🇲🇽", "ITALY": "🇮🇹",
+    "SPAIN": "🇪🇸", "TURKEY": "🇹🇷", "INDONESIA": "🇮🇩", "PHILIPPINES": "🇵🇭",
+    "VIETNAM": "🇻🇳", "THAILAND": "🇹🇭", "MALAYSIA": "🇲🇾", "SINGAPORE": "🇸🇬",
+    "BANGLADESH": "🇧🇩", "GHANA": "🇬🇭", "EGYPT": "🇪🇬", "SOUTH AFRICA": "🇿🇦",
+    "UAE": "🇦🇪", "SAUDI ARABIA": "🇸🇦", "IRAN": "🇮🇷", "IRAQ": "🇮🇶",
+    "AFGHANISTAN": "🇦🇫", "NEPAL": "🇳🇵", "SRI LANKA": "🇱🇰", "MYANMAR": "🇲🇲",
+    "UKRAINE": "🇺🇦", "POLAND": "🇵🇱", "NETHERLANDS": "🇳🇱", "BELGIUM": "🇧🇪",
+    "SWEDEN": "🇸🇪", "NORWAY": "🇳🇴", "FINLAND": "🇫🇮", "DENMARK": "🇩🇰",
+    "SWITZERLAND": "🇨🇭", "AUSTRIA": "🇦🇹", "GREECE": "🇬🇷", "PORTUGAL": "🇵🇹",
+    "IRELAND": "🇮🇪", "NEW ZEALAND": "🇳🇿", "ARGENTINA": "🇦🇷", "COLOMBIA": "🇨🇴",
+    "PERU": "🇵🇪", "CHILE": "🇨🇱", "VENEZUELA": "🇻🇪", "ETHIOPIA": "🇪🇹",
+    "MOROCCO": "🇲🇦", "ALGERIA": "🇩🇿", "TUNISIA": "🇹🇳", "ISRAEL": "🇮🇱",
+    "JORDAN": "🇯🇴", "LEBANON": "🇱🇧", "SYRIA": "🇸🇾", "YEMEN": "🇾🇪",
+    "OMAN": "🇴🇲", "QATAR": "🇶🇦", "KUWAIT": "🇰🇼", "BAHRAIN": "🇧🇭",
+    "SOUTH KOREA": "🇰🇷", "KOREA": "🇰🇷", "TAIWAN": "🇹🇼", "HONG KONG": "🇭🇰",
+    "CAMBODIA": "🇰🇭", "LAOS": "🇱🇦", "MONGOLIA": "🇲🇳", "KAZAKHSTAN": "🇰🇿",
+    "UZBEKISTAN": "🇺🇿", "AZERBAIJAN": "🇦🇿", "GEORGIA": "🇬🇪", "ARMENIA": "🇦🇲",
+    "ROMANIA": "🇷🇴", "BULGARIA": "🇧🇬", "HUNGARY": "🇭🇺", "CZECHIA": "🇨🇿",
+    "SLOVAKIA": "🇸🇰", "CROATIA": "🇭🇷", "SERBIA": "🇷🇸", "BELARUS": "🇧🇾",
+}
+
+def get_country_flag(country_name):
+    """Get flag emoji for country. Handles suffixes like '2024', 'Fresh' etc."""
+    if not country_name:
+        return "📱"
+    # Strip suffix like " 2024", " (Fresh)", " (2025)" etc.
+    base = re.sub(r'\s*[\(\-].*$', '', country_name).strip()
+    base = re.sub(r'\s+\d{4}.*$', '', base).strip()
+    upper = base.upper()
+    if upper in COUNTRY_FLAGS:
+        return COUNTRY_FLAGS[upper]
+    # Try full upper
+    upper_full = country_name.upper()
+    for key, flag in COUNTRY_FLAGS.items():
+        if key in upper_full:
+            return flag
+    return "📱"
+
+def format_country_name(country_name):
+    """Format country name for display (Title Case, keep suffix in parens)."""
+    if not country_name:
+        return "Unknown"
+    return country_name.title()
 
 # ============ MARKDOWN ESCAPE ============
 def escape_markdown(text):
@@ -142,16 +186,10 @@ def escape_markdown(text):
 
 # ============ MONGO WRAPPER ============
 class MongoStore:
-    """
-    Persistent JSON-like store backed by MongoDB.
-    Keeps a hot in-memory `data` dict identical to the old JSON layout,
-    so 99% of the old code keeps working. Every save_data() writes to Mongo.
-    """
     def __init__(self, url, db_name):
         self.client = MongoClient(url, serverSelectionTimeoutMS=15000)
         self.db = self.client[db_name]
         self.col = self.db["bot_state"]
-        # sanity ping
         try:
             self.client.admin.command("ping")
             logger.info("[MONGO] Connected OK")
@@ -176,8 +214,8 @@ mongo_store = MongoStore(MONGO_URL, MONGO_DB_NAME)
 def _default_data():
     return {
         "users": {},
-        "accounts": {},                # buy channel
-        "resale_accounts": {},         # ✅ NEW resale channel
+        "accounts": {},
+        "resale_accounts": {},
         "discount_codes": {},
         "coupons": {},
         "pending_payments": {},
@@ -187,16 +225,15 @@ def _default_data():
         "used_utrs": {},
         "services": {},
         "service_seq": 0,
-        "ai_enabled": True,            # ✅ AI on/off (group only)
-        "ai_memory": {}                # ✅ per-user AI memory
+        "ai_enabled": True,
+        "ai_memory": {},
+        "sales_stats": {}  # ✅ NEW: per-country sales tracking for AI
     }
 
 def load_data():
-    # Try Mongo first
     m = mongo_store.load()
     if m:
         return m
-    # Fallback: old JSON file (migrate once)
     if os.path.exists(DB_FILE):
         try:
             with open(DB_FILE, 'r') as f:
@@ -219,7 +256,7 @@ data = load_data()
 # Force-correct types
 _DICT_KEYS = [
     "users", "accounts", "resale_accounts", "discount_codes", "coupons", "pending_payments",
-    "states", "used_discounts", "services", "used_utrs", "ai_memory"
+    "states", "used_discounts", "services", "used_utrs", "ai_memory", "sales_stats"
 ]
 for _k in _DICT_KEYS:
     if _k not in data or not isinstance(data.get(_k), dict):
@@ -266,9 +303,19 @@ def generate_upi_qr(amount: int) -> BytesIO:
         logger.error(f"[QR GENERATION ERROR] {e}")
         return None
 
+def track_sale(country, quantity, price, channel="buy"):
+    """Track per-country sales for AI insights."""
+    if "sales_stats" not in data or not isinstance(data["sales_stats"], dict):
+        data["sales_stats"] = {}
+    key = f"{channel}:{country.upper()}"
+    if key not in data["sales_stats"]:
+        data["sales_stats"][key] = {"total_sold": 0, "total_revenue": 0, "last_sale": None}
+    data["sales_stats"][key]["total_sold"] += quantity
+    data["sales_stats"][key]["total_revenue"] += price
+    data["sales_stats"][key]["last_sale"] = datetime.now().isoformat()
+
 # ============ LOGGING → LOGS GROUP ============
 async def send_log_to_support(context, log_message):
-    """All bot LOGS go to LOGS_GROUP_ID (new logs group)."""
     try:
         await context.bot.send_message(
             chat_id=LOGS_GROUP_ID,
@@ -967,7 +1014,6 @@ def _menu_keyboard(user_id):
     ]
 
 async def start(update, context):
-    # only handle DMs on /start (groups get their own AI)
     if update.effective_chat and update.effective_chat.type != "private":
         return
     user_id = update.effective_user.id
@@ -1525,7 +1571,6 @@ async def handle_transfer_amount(update, context):
         await update.message.reply_text(f"❌ You only have ₹{bal}.00. Can't send ₹{amount}.")
         return WAITING_FOR_TRANSFER_AMOUNT
 
-    # do transfer
     data["users"][str(user_id)]["balance"] -= amount
     data["users"][str(target_id)]["balance"] = data["users"][str(target_id)].get("balance", 0) + amount
     save_data(data)
@@ -1554,7 +1599,8 @@ async def handle_transfer_amount(update, context):
 
     clear_user_state(user_id)
     return ConversationHandler.END
-  # ============ OWNER PANEL ============
+
+# ============ OWNER PANEL ============
 async def owner_panel(update, context):
     user_id = update.effective_user.id
     if not is_owner(user_id):
@@ -1590,7 +1636,6 @@ async def owner_add_command(update, context):
         await update.message.reply_text("❌ Unauthorized!", parse_mode='Markdown')
         return
     args = context.args
-    # /add <user_id> <amount>  → direct
     if len(args) == 2:
         try:
             target_user_id = int(args[0])
@@ -1622,7 +1667,6 @@ async def owner_add_command(update, context):
             await update.message.reply_text("❌ Usage: /add <user_id> <amount>")
         return
 
-    # /add <user_id>  → ask amount, show current balance
     if len(args) == 1:
         try:
             target_user_id = int(args[0])
@@ -1642,7 +1686,6 @@ async def owner_add_command(update, context):
         )
         return
 
-    # /add  → ask user id, then amount
     set_user_state(user_id, WAITING_FOR_TARGET_USER_ID, {"action": "add"})
     await update.message.reply_text("➕ Send target user ID:", parse_mode='Markdown')
 
@@ -1759,7 +1802,6 @@ async def owner_handle_addbal_amount(update, context):
         return WAITING_FOR_ADDBAL_AMOUNT
 
 async def owner_handle_target_amount(update, context):
-    # deduct flow
     user_id = update.effective_user.id
     if not is_owner(user_id):
         return ConversationHandler.END
@@ -2150,7 +2192,8 @@ async def owner_stats(update, context):
         parse_mode='Markdown'
     )
 
-# ============ COUNTRY UI (BUY + RESALE) ============
+# ============ END OF PART 1 ============
+# ============ COUNTRY UI (BUY + RESALE) - NEW DESIGN ============
 def _channel_dict(channel):
     return data["accounts"] if channel == "buy" else data["resale_accounts"]
 
@@ -2166,14 +2209,10 @@ async def show_countries(update, context, channel="buy"):
         if not is_member:
             await show_force_join_message(update, context)
             return
-    keyboard = []
-    country_flags = {
-        "USA": "🇺🇸", "UK": "🇬🇧", "INDIA": "🇮🇳", "CANADA": "🇨🇦",
-        "AUSTRALIA": "🇦🇺", "GERMANY": "🇩🇪", "FRANCE": "🇫🇷",
-        "KENYA": "🇰🇪", "NIGERIA": "🇳🇬", "PAKISTAN": "🇵🇰"
-    }
+
     ch = _channel_dict(channel)
     available = {c: info for c, info in ch.items() if info["quantity"] > 0}
+
     if channel == "resale":
         header = (
             "♻️ *Resale Accounts*\n\n"
@@ -2183,17 +2222,23 @@ async def show_countries(update, context, channel="buy"):
     else:
         header = "📍 *Available Accounts*\n━━━━━━━━━━━━━━━━━━━━\n\n"
 
+    keyboard = []
     if available:
         text = header
         pfx = _channel_prefix(channel)
-        for country, info in available.items():
-            flag = country_flags.get(country.upper(), "📱")
-            text += f"{flag} *{country.title()}*  •  📦 {info['quantity']}  •  💰 ₹{info['price']}.00\n"
+        country_list = list(available.items())
+        for idx, (country, info) in enumerate(country_list):
+            flag = get_country_flag(country)
+            pretty = format_country_name(country)
+            text += f"📱 *{pretty}* {flag}\n"
+            text += f"📦 Stock: {info['quantity']}  •  💰 Price: ₹{info['price']}.00\n"
+            if idx < len(country_list) - 1:
+                text += "────────────────────\n"
             keyboard.append([InlineKeyboardButton(
-                f"{flag} {country.title()} — ₹{info['price']}",
+                f"{flag} {pretty} — ₹{info['price']}",
                 callback_data=f"{pfx}country_{country}"
             )])
-        text += "\n👇 Select a country:"
+        text += "\n👇 *Select a country to purchase:*"
         keyboard.append([InlineKeyboardButton("🔙 Back to Menu", callback_data="main_menu")])
     else:
         text = header + "📭 *No accounts available currently!*"
@@ -2224,8 +2269,10 @@ async def show_account_details(update, context, channel="buy"):
     info = ch[country]
     balance = get_user_data(user_id)["balance"]
     label = "Virtual Account" if channel == "buy" else "Resale Account"
+    flag = get_country_flag(country)
+    pretty = format_country_name(country)
     text = f"""
-📱 *{country.upper()} {label}*
+📱 *{pretty}* {flag} — {label}
 
 💰 Price: ₹{info['price']}.00
 📊 Available: {info['quantity']}
@@ -2244,16 +2291,27 @@ async def process_buy_number(update, context, channel="buy"):
     query = update.callback_query
     await query.answer()
     user_id = update.effective_user.id
-    country = query.data.split("_")[-1]
+    # callback: [r]buy_number_<country>  --> country can contain underscores/spaces
+    prefix = "rbuy_number_" if channel == "resale" else "buy_number_"
+    country = query.data[len(prefix):] if query.data.startswith(prefix) else query.data.split("_")[-1]
     ch = _channel_dict(channel)
     if country not in ch:
+        # Try fallback with underscores replaced
+        for k in ch.keys():
+            if k.upper() == country.upper():
+                country = k
+                break
+    if country not in ch:
+        await query.edit_message_text("❌ Country not found!", parse_mode='Markdown')
         return ConversationHandler.END
     info = ch[country]
     price = info["price"]
     balance = get_user_data(user_id)["balance"]
     available = info["quantity"]
+    flag = get_country_flag(country)
+    pretty = format_country_name(country)
     await query.edit_message_text(
-        f"🛒 *Purchase {country.upper()}*\n\n"
+        f"🛒 *Purchase {pretty} {flag}*\n\n"
         f"📊 Available: {available}\n💰 Price: ₹{price}.00\n💳 Balance: ₹{balance}.00\n\n"
         f"📝 How many? (1-{available}):",
         parse_mode='Markdown'
@@ -2288,12 +2346,14 @@ async def handle_quantity_input(update, context):
             clear_user_state(user_id)
             return ConversationHandler.END
         pfx = _channel_prefix(channel)
+        flag = get_country_flag(country)
+        pretty = format_country_name(country)
         keyboard = [
-            [InlineKeyboardButton("✅ CONFIRM", callback_data=f"{pfx}confirm_buy_{country}_{quantity}")],
+            [InlineKeyboardButton("✅ CONFIRM", callback_data=f"{pfx}cnfbuy_{country}_{quantity}")],
             [InlineKeyboardButton("❌ CANCEL", callback_data=("virtual_accounts" if channel == "buy" else "resale_accounts"))]
         ]
         await update.message.reply_text(
-            f"🛒 *Confirm Purchase*\n\n📱 {country.upper()} ({'Resale' if channel=='resale' else 'Buy'})\n"
+            f"🛒 *Confirm Purchase*\n\n📱 {pretty} {flag} ({'Resale' if channel=='resale' else 'Buy'})\n"
             f"📊 Qty: {quantity}\n💰 Total: ₹{total_price}\n💳 Balance: ₹{balance}",
             reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown'
         )
@@ -2307,12 +2367,29 @@ async def confirm_purchase(update, context, channel="buy"):
     query = update.callback_query
     await query.answer()
     user_id = update.effective_user.id
-    # callback format: [r]confirm_buy_<country>_<qty>
-    parts = query.data.split("_")
-    country = parts[-2]
-    quantity = int(parts[-1])
+    # callback: [r]cnfbuy_<country>_<qty>
+    prefix = "rcnfbuy_" if channel == "resale" else "cnfbuy_"
+    payload = query.data[len(prefix):] if query.data.startswith(prefix) else query.data
+    # split from right to get quantity
+    parts = payload.rsplit("_", 1)
+    if len(parts) != 2:
+        await query.edit_message_text("❌ Invalid data!", parse_mode='Markdown')
+        return
+    country = parts[0]
+    try:
+        quantity = int(parts[1])
+    except:
+        await query.edit_message_text("❌ Invalid quantity!", parse_mode='Markdown')
+        return
+
     username = data["users"][str(user_id)]["username"]
     ch = _channel_dict(channel)
+    # fallback match
+    if country not in ch:
+        for k in ch.keys():
+            if k.upper() == country.upper():
+                country = k
+                break
     if country not in ch or ch[country]["quantity"] < quantity:
         await query.edit_message_text("❌ Out of stock!", parse_mode='Markdown')
         return
@@ -2333,17 +2410,20 @@ async def confirm_purchase(update, context, channel="buy"):
         "channel": channel
     }
     data["users"][str(user_id)]["purchases"].append(purchase)
+    track_sale(country, quantity, total_price, channel=channel)
     save_data(data)
     idx = len(data["users"][str(user_id)]["purchases"]) - 1
     phones = [s.get("phone_number", "Unknown") for s in sessions_to_assign]
     await log_number_purchase(context, user_id, username, country, quantity, total_price, phones, channel=channel)
+    flag = get_country_flag(country)
+    pretty = format_country_name(country)
     keyboard = [
         [InlineKeyboardButton("📱 GET NUMBERS", callback_data=f"get_number_{user_id}_{idx}")],
         [InlineKeyboardButton("🛒 Buy More", callback_data=("virtual_accounts" if channel=="buy" else "resale_accounts"))],
         [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
     ]
     await query.edit_message_text(
-        f"🎉 *Purchase Successful!*\n\n📱 {country.upper()}\n📊 Qty: {quantity}\n💰 ₹{total_price}\n"
+        f"🎉 *Purchase Successful!*\n\n📱 {pretty} {flag}\n📊 Qty: {quantity}\n💰 ₹{total_price}\n"
         f"💳 New Balance: ₹{data['users'][str(user_id)]['balance']}",
         reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown'
     )
@@ -2354,7 +2434,7 @@ async def confirm_purchase_buy(update, context):
 async def confirm_purchase_resale(update, context):
     await confirm_purchase(update, context, channel="resale")
 
-# --- get numbers / OTP / logout (same for both channels since we saved channel in purchase) ---
+# --- get numbers / OTP / logout ---
 async def get_number_handler(update, context):
     query = update.callback_query
     await query.answer("📱 Fetching...")
@@ -2389,12 +2469,24 @@ async def get_number_handler(update, context):
         except:
             pass
     save_data(data)
-    text = f"📱 *Phone Numbers*\n\n{purchase['country'].upper()} — {purchase['quantity']}\n"
+
+    flag = get_country_flag(purchase['country'])
+    pretty = format_country_name(purchase['country'])
+
+    text = f"📱 *Phone Numbers Retrieved!*\n\n"
+    text += f"*Country:* {pretty.upper()} {flag}\n"
+    text += f"*Quantity:* {purchase['quantity']}\n\n"
     for i, p in enumerate(phones, 1):
-        text += f"\n*Account {i}:* `{p}`"
+        text += f"*Account {i}:*\n📞 `{p}`\n\n"
+    text += "━━━━━━━━━━━━━━━━━━━━\n"
+    text += "⚡ *Next Steps:*\n"
+    text += "1️⃣ Use numbers to login on Telegram\n"
+    text += "2️⃣ Click *GET OTP* for verification\n"
+    text += "3️⃣ Complete login\n"
+
+    # ✅ Only GET OTP button now - no "LOGIN COMPLETE" so user doesn't accidentally lose the ID
     keyboard = [
-        [InlineKeyboardButton("🔍 GET OTP", callback_data=f"get_otp_{user_id}_{idx}")],
-        [InlineKeyboardButton("✅ LOGIN COMPLETE", callback_data=f"login_complete_{user_id}_{idx}")]
+        [InlineKeyboardButton("🔍 GET OTP", callback_data=f"get_otp_{user_id}_{idx}")]
     ]
     await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
 
@@ -2411,7 +2503,9 @@ async def get_otp_handler(update, context):
     sessions = purchase.get("sessions", [])
     if not sessions:
         return
-    await query.edit_message_text(f"🔍 Fetching OTP for {purchase['country'].upper()}...", parse_mode='Markdown')
+    flag = get_country_flag(purchase['country'])
+    pretty = format_country_name(purchase['country'])
+    await query.edit_message_text(f"🔍 Fetching OTP for {pretty} {flag}...", parse_mode='Markdown')
 
     async def fetch_otp(i, sd):
         s = sd.get("session")
@@ -2445,20 +2539,24 @@ async def get_otp_handler(update, context):
         return {"status": "error", "message": "❌ No session"}
 
     results = await asyncio.gather(*[fetch_otp(i, s) for i, s in enumerate(sessions)])
-    text = f"🔑 *OTP Results*\n\n{purchase['country'].upper()}\n"
+    text = f"🔑 *OTP Results*\n\n{pretty} {flag}\n"
     success = 0
     for i, r in enumerate(results, 1):
         text += f"\n*Account {i}:* {r['message']}"
         if r["status"] == "success":
             success += 1
     await log_otp_fetched(context, user_id, data["users"][str(user_id)]["username"], purchase['country'], success, len(sessions))
+    # ✅ Only Try Again + Logout after OTP success
     keyboard = [
         [InlineKeyboardButton("🔄 TRY AGAIN", callback_data=f"get_otp_{user_id}_{idx}")],
-        [InlineKeyboardButton("✅ LOGIN COMPLETE", callback_data=f"login_complete_{user_id}_{idx}")]
+        [InlineKeyboardButton("🚪 LOGOUT BOT", callback_data=f"logout_session_{user_id}_{idx}")],
+        [InlineKeyboardButton("🛒 Buy More", callback_data="virtual_accounts")],
+        [InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]
     ]
     await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
 
 async def login_complete(update, context):
+    # kept for legacy callbacks
     query = update.callback_query
     await query.answer("✅ Verified!")
     parts = query.data.split("_")
@@ -2591,7 +2689,7 @@ async def handle_amount_input(update, context):
         await update.message.reply_text("❌ Numbers only!")
         return WAITING_FOR_AMOUNT
 
-# ✅ SCREENSHOT → ASK UPI SOURCE (FamPay / Other UPI)
+# ✅ SCREENSHOT → ASK UPI SOURCE
 async def handle_screenshot(update, context):
     user_id = update.effective_user.id
     state = get_user_state(user_id)
@@ -2634,16 +2732,25 @@ async def handle_screenshot(update, context):
     set_user_state(user_id, WAITING_FOR_UPI_SOURCE, {"amount": amount, "photo_id": photo_id})
     return WAITING_FOR_UPI_SOURCE
 
-# ✅ handle UPI source click → ask correct id
 async def handle_upi_source(update, context):
     query = update.callback_query
     await query.answer()
     user_id = update.effective_user.id
-    src = query.data.split("_", 1)[1]  # "fampay" or "other"
+    src = query.data.split("_", 1)[1]
     st = get_user_state(user_id)
     if st["state"] not in (WAITING_FOR_UPI_SOURCE, WAITING_FOR_UTR):
-        return
-    d = st.get("data", {})
+        # Try to recover from pending_payments
+        pp = data["pending_payments"].get(str(user_id))
+        if pp and pp.get("status") == "awaiting_utr":
+            d = {"amount": pp["amount"], "photo_id": pp["photo_id"]}
+        else:
+            await query.edit_message_text(
+                "❌ Session expired. Please /start again and resubmit payment.",
+                parse_mode='Markdown'
+            )
+            return
+    else:
+        d = st.get("data", {})
     d["upi_source"] = src
     set_user_state(user_id, WAITING_FOR_UTR, d)
 
@@ -2670,6 +2777,10 @@ async def handle_upi_source_back(update, context):
     user_id = update.effective_user.id
     st = get_user_state(user_id)
     d = st.get("data", {})
+    if not d:
+        pp = data["pending_payments"].get(str(user_id))
+        if pp:
+            d = {"amount": pp["amount"], "photo_id": pp["photo_id"]}
     d.pop("upi_source", None)
     set_user_state(user_id, WAITING_FOR_UPI_SOURCE, d)
     keyboard = [
@@ -2682,16 +2793,45 @@ async def handle_upi_source_back(update, context):
         parse_mode='Markdown'
     )
 
-# ✅ Now handle UTR / Transaction ID input based on UPI source
+# ✅ FIXED: handle UTR / Transaction ID input with proper error handling
 async def handle_utr_input(update, context):
     user_id = update.effective_user.id
     state = get_user_state(user_id)
+
+    # ✅ Session recovery - if state lost, try to get from pending_payments
     if state["state"] != WAITING_FOR_UTR:
-        return ConversationHandler.END
+        pp = data["pending_payments"].get(str(user_id))
+        if pp and pp.get("status") == "awaiting_utr":
+            # Recover session
+            state = {
+                "state": WAITING_FOR_UTR,
+                "data": {
+                    "amount": pp["amount"],
+                    "photo_id": pp["photo_id"],
+                    "upi_source": pp.get("upi_source", "other")
+                }
+            }
+        else:
+            await update.message.reply_text(
+                "❌ Payment session expired.\n\n"
+                "💡 Please /start again and resubmit your payment with screenshot.",
+                parse_mode='Markdown'
+            )
+            return ConversationHandler.END
+
     raw = update.message.text.strip()
     amount = state["data"].get("amount", 0)
     photo_id = state["data"].get("photo_id")
     src = state["data"].get("upi_source", "other")
+
+    if not amount or not photo_id:
+        await update.message.reply_text(
+            "❌ Payment data missing.\n💡 Please /start and try again.",
+            parse_mode='Markdown'
+        )
+        clear_user_state(user_id)
+        return ConversationHandler.END
+
     username = data["users"][str(user_id)].get("username", f"User_{user_id}")
     safe_username = escape_markdown(username)
 
@@ -2710,7 +2850,6 @@ async def handle_utr_input(update, context):
             return WAITING_FOR_UTR
         id_type, idval = ("txn", raw.upper())
     else:
-        # Other UPI → must be 12 digit UTR
         v = raw.strip()
         if not (v.isdigit() and len(v) == 12):
             keyboard = [[InlineKeyboardButton("🔙 Back", callback_data="upisrc_back")]]
@@ -2727,138 +2866,199 @@ async def handle_utr_input(update, context):
 
     pretty_type = "Transaction ID" if id_type == "txn" else "UTR"
 
-    if is_utr_used(idval):
-        await log_auto_approve_attempt(context, user_id, username, amount, idval,
-                                       "REJECTED", f"{pretty_type} already used", id_type=pretty_type)
+    # ✅ FIXED: Wrap everything in try-except to avoid "Error occurred, try /start"
+    try:
+        if is_utr_used(idval):
+            await log_auto_approve_attempt(context, user_id, username, amount, idval,
+                                           "REJECTED", f"{pretty_type} already used", id_type=pretty_type)
+            await update.message.reply_text(
+                f"❌ *This {pretty_type} has already been used!*\n\n"
+                f"💡 Please make a fresh payment.\n"
+                f"📞 Contact: @{OWNER_TG_USERNAME}",
+                parse_mode='Markdown'
+            )
+            clear_user_state(user_id)
+            return ConversationHandler.END
+
+        if str(user_id) not in data["pending_payments"]:
+            data["pending_payments"][str(user_id)] = {}
+        data["pending_payments"][str(user_id)].update({
+            "amount": amount, "photo_id": photo_id, "utr": idval,
+            "id_type": id_type, "upi_source": src,
+            "timestamp": datetime.now().isoformat(), "status": "submitted"
+        })
+        save_data(data)
+
+        verifying_msg = None
+        try:
+            verifying_msg = await update.message.reply_text(
+                f"🤖 *Auto-verifying...*\n\n💰 ₹{amount}.00\n🔢 {pretty_type}: `{escape_markdown(idval)}`\n"
+                f"⏳ Checking (max {AUTO_VERIFY_TIMEOUT}s)...",
+                parse_mode='Markdown'
+            )
+        except Exception as e:
+            logger.error(f"[VERIFY MSG ERROR] {e}")
+
+        result = await auto_verify_id(idval, id_type, amount)
+        paired_txn = result.get("txn_id")
+        paired_utr = result.get("utr")
+        if paired_txn or paired_utr:
+            data["pending_payments"][str(user_id)]["paired_txn"] = paired_txn
+            data["pending_payments"][str(user_id)]["paired_utr"] = paired_utr
+            save_data(data)
+
+        # CASE 1: found + match
+        if result.get("found") and result.get("matched_amount") and not result.get("too_old"):
+            data["users"][str(user_id)]["balance"] += amount
+            data["pending_payments"][str(user_id)]["status"] = "approved"
+            mark_utr_used(idval, user_id, amount, mode="auto")
+            if paired_txn and paired_txn.upper() != idval.upper():
+                mark_utr_used(paired_txn, user_id, amount, mode="auto_paired")
+            if paired_utr and paired_utr != idval:
+                mark_utr_used(paired_utr, user_id, amount, mode="auto_paired")
+            save_data(data)
+            await log_auto_approve_attempt(context, user_id, username, amount, idval, "AUTO APPROVED", "Payment verified & amount matched", id_type=pretty_type)
+            await log_payment_approved(context, user_id, username, amount, mode="AUTO")
+            success_text = (
+                f"✅ *Payment Auto-Approved!*\n\n"
+                f"💰 Amount: ₹{amount}.00\n"
+                f"🔢 {pretty_type}: `{escape_markdown(idval)}`\n"
+                f"💳 New Balance: ₹{data['users'][str(user_id)]['balance']}.00\n\n"
+                f"🎉 Your funds have been added successfully!"
+            )
+            if verifying_msg:
+                try:
+                    await verifying_msg.edit_text(success_text, parse_mode='Markdown')
+                except:
+                    await update.message.reply_text(success_text, parse_mode='Markdown')
+            else:
+                await update.message.reply_text(success_text, parse_mode='Markdown')
+            clear_user_state(user_id)
+            return ConversationHandler.END
+
+        # CASE 2: found + mismatch
+        if result.get("found") and not result.get("matched_amount") and not result.get("too_old"):
+            found_amt = result.get("found_amount")
+            mark_utr_used(idval, user_id, amount, mode="auto_failed_mismatch")
+            data["pending_payments"][str(user_id)]["status"] = "rejected_mismatch"
+            save_data(data)
+            await log_auto_approve_attempt(context, user_id, username, amount, idval,
+                                           "AMOUNT MISMATCH", f"Expected ₹{amount}, found ₹{found_amt}", id_type=pretty_type)
+            mismatch_text = (
+                f"❌ *Amount Mismatch!*\n\n"
+                f"💰 You entered: ₹{amount}.00\n"
+                f"💰 Payment found: ₹{found_amt}\n\n"
+                f"📝 The amount you paid does not match with the amount entered.\n\n"
+                f"📞 Contact owner: @{OWNER_TG_USERNAME}"
+            )
+            if verifying_msg:
+                try:
+                    await verifying_msg.edit_text(mismatch_text, parse_mode='Markdown')
+                except:
+                    await update.message.reply_text(mismatch_text, parse_mode='Markdown')
+            else:
+                await update.message.reply_text(mismatch_text, parse_mode='Markdown')
+            clear_user_state(user_id)
+            return ConversationHandler.END
+
+        # CASE 3: too old
+        if result.get("too_old"):
+            mark_utr_used(idval, user_id, amount, mode="auto_failed_too_old")
+            data["pending_payments"][str(user_id)]["status"] = "rejected_old_utr"
+            save_data(data)
+            await log_auto_approve_attempt(context, user_id, username, amount, idval,
+                                           "ID TOO OLD", f"Payment older than {UTR_MAX_AGE_HOURS}h", id_type=pretty_type)
+            old_text = (
+                f"❌ *Payment Too Old!*\n\n"
+                f"⏰ Only last {UTR_MAX_AGE_HOURS} hour(s) payments accepted.\n"
+                f"🔢 {pretty_type}: `{escape_markdown(idval)}`\n\n"
+                f"📞 Contact owner: @{OWNER_TG_USERNAME}"
+            )
+            if verifying_msg:
+                try:
+                    await verifying_msg.edit_text(old_text, parse_mode='Markdown')
+                except:
+                    await update.message.reply_text(old_text, parse_mode='Markdown')
+            else:
+                await update.message.reply_text(old_text, parse_mode='Markdown')
+            clear_user_state(user_id)
+            return ConversationHandler.END
+
+        # CASE 4: manual review
+        data["pending_payments"][str(user_id)]["status"] = "manual_review"
+        save_data(data)
+        err = result.get("error")
+        if err == "timeout":
+            fail_reason = f"Auto verification timed out ({AUTO_VERIFY_TIMEOUT}s). Manual review needed."
+        elif err:
+            fail_reason = f"System check delayed. Sent for manual review."
+        else:
+            fail_reason = f"{pretty_type} not yet found in email records. Manual review requested."
+        await log_auto_approve_attempt(context, user_id, username, amount, idval, "MANUAL REVIEW", fail_reason, id_type=pretty_type)
+
+        try:
+            keyboard_owner = [[
+                InlineKeyboardButton("✅ APPROVE", callback_data=f"approve_fund_{user_id}"),
+                InlineKeyboardButton("❌ REJECT", callback_data=f"reject_fund_{user_id}")
+            ]]
+            await context.bot.send_photo(
+                chat_id=OWNER_ID, photo=photo_id,
+                caption=f"💳 *Manual Payment Review*\n\n"
+                        f"👤 {safe_username}\n🆔 `{user_id}`\n"
+                        f"💰 ₹{amount}.00\n🔢 {pretty_type}: `{escape_markdown(idval)}`\n"
+                        f"📱 Source: {src}\n📝 {escape_markdown(fail_reason)}",
+                reply_markup=InlineKeyboardMarkup(keyboard_owner), parse_mode='Markdown'
+            )
+        except Exception as e:
+            logger.error(f"[FORWARD ERROR] {e}")
+
+        manual_text = (
+            f"⚠️ *Auto verification pending*\n\n"
+            f"💰 Amount: ₹{amount}.00\n"
+            f"🔢 {pretty_type}: `{escape_markdown(idval)}`\n\n"
+            f"📝 Reason: {escape_markdown(fail_reason)}\n\n"
+            f"📨 Your payment has been forwarded to the owner for *manual approval*.\n"
+            f"⏰ Please wait, you will be notified once approved.\n\n"
+            f"📞 For urgent help: @{OWNER_TG_USERNAME}"
+        )
+        if verifying_msg:
+            try:
+                await verifying_msg.edit_text(manual_text, parse_mode='Markdown')
+            except:
+                await update.message.reply_text(manual_text, parse_mode='Markdown')
+        else:
+            await update.message.reply_text(manual_text, parse_mode='Markdown')
+        clear_user_state(user_id)
+        return ConversationHandler.END
+
+    except Exception as e:
+        logger.error(f"[UTR HANDLER ERROR] {e}")
+        try:
+            # Send to owner for manual review anyway
+            keyboard_owner = [[
+                InlineKeyboardButton("✅ APPROVE", callback_data=f"approve_fund_{user_id}"),
+                InlineKeyboardButton("❌ REJECT", callback_data=f"reject_fund_{user_id}")
+            ]]
+            await context.bot.send_photo(
+                chat_id=OWNER_ID, photo=photo_id,
+                caption=f"💳 *Manual Payment Review (System Issue)*\n\n"
+                        f"👤 {safe_username}\n🆔 `{user_id}`\n"
+                        f"💰 ₹{amount}.00\n🔢 {pretty_type}: `{escape_markdown(idval)}`\n"
+                        f"📱 Source: {src}\n📝 System had temporary issue - please verify manually.",
+                reply_markup=InlineKeyboardMarkup(keyboard_owner), parse_mode='Markdown'
+            )
+        except:
+            pass
         await update.message.reply_text(
-            f"❌ *This {pretty_type} has already been used!*\n\n"
-            f"💡 Please make a fresh payment.\n"
+            f"⚠️ *Verification queued*\n\n"
+            f"Your payment details have been recorded and sent to owner for manual review.\n\n"
+            f"💰 Amount: ₹{amount}.00\n"
+            f"🔢 {pretty_type}: `{escape_markdown(idval)}`\n\n"
             f"📞 Contact: @{OWNER_TG_USERNAME}",
             parse_mode='Markdown'
         )
         clear_user_state(user_id)
         return ConversationHandler.END
-
-    if str(user_id) not in data["pending_payments"]:
-        data["pending_payments"][str(user_id)] = {}
-    data["pending_payments"][str(user_id)].update({
-        "amount": amount, "photo_id": photo_id, "utr": idval,
-        "id_type": id_type, "upi_source": src,
-        "timestamp": datetime.now().isoformat(), "status": "submitted"
-    })
-    save_data(data)
-
-    verifying_msg = await update.message.reply_text(
-        f"🤖 *Auto-verifying...*\n\n💰 ₹{amount}.00\n🔢 {pretty_type}: `{escape_markdown(idval)}`\n"
-        f"⏳ Checking (max {AUTO_VERIFY_TIMEOUT}s)...",
-        parse_mode='Markdown'
-    )
-    result = await auto_verify_id(idval, id_type, amount)
-    paired_txn = result.get("txn_id")
-    paired_utr = result.get("utr")
-    if paired_txn or paired_utr:
-        data["pending_payments"][str(user_id)]["paired_txn"] = paired_txn
-        data["pending_payments"][str(user_id)]["paired_utr"] = paired_utr
-        save_data(data)
-
-    # CASE 1: found + match
-    if result.get("found") and result.get("matched_amount") and not result.get("too_old"):
-        data["users"][str(user_id)]["balance"] += amount
-        data["pending_payments"][str(user_id)]["status"] = "approved"
-        mark_utr_used(idval, user_id, amount, mode="auto")
-        if paired_txn and paired_txn.upper() != idval.upper():
-            mark_utr_used(paired_txn, user_id, amount, mode="auto_paired")
-        if paired_utr and paired_utr != idval:
-            mark_utr_used(paired_utr, user_id, amount, mode="auto_paired")
-        save_data(data)
-        await log_auto_approve_attempt(context, user_id, username, amount, idval, "AUTO APPROVED", "Match", id_type=pretty_type)
-        await log_payment_approved(context, user_id, username, amount, mode="AUTO")
-        try:
-            await verifying_msg.edit_text(
-                f"✅ *Payment Auto-Approved!*\n\n💰 ₹{amount}.00\n"
-                f"💳 New Balance: ₹{data['users'][str(user_id)]['balance']}.00",
-                parse_mode='Markdown'
-            )
-        except:
-            pass
-        clear_user_state(user_id)
-        return ConversationHandler.END
-
-    # CASE 2: found + mismatch
-    if result.get("found") and not result.get("matched_amount") and not result.get("too_old"):
-        found_amt = result.get("found_amount")
-        mark_utr_used(idval, user_id, amount, mode="auto_failed_mismatch")
-        data["pending_payments"][str(user_id)]["status"] = "rejected_mismatch"
-        save_data(data)
-        await log_auto_approve_attempt(context, user_id, username, amount, idval,
-                                       "AMOUNT MISMATCH", f"Expected ₹{amount}, found ₹{found_amt}", id_type=pretty_type)
-        try:
-            await verifying_msg.edit_text(
-                f"❌ *Amount Mismatch!*\n💰 Entered: ₹{amount}\n💰 Found: ₹{found_amt}\n\n"
-                f"📞 Contact: @{OWNER_TG_USERNAME}",
-                parse_mode='Markdown'
-            )
-        except:
-            pass
-        clear_user_state(user_id)
-        return ConversationHandler.END
-
-    # CASE 3: too old
-    if result.get("too_old"):
-        mark_utr_used(idval, user_id, amount, mode="auto_failed_too_old")
-        data["pending_payments"][str(user_id)]["status"] = "rejected_old_utr"
-        save_data(data)
-        await log_auto_approve_attempt(context, user_id, username, amount, idval,
-                                       "ID TOO OLD", f"Older than {UTR_MAX_AGE_HOURS}h", id_type=pretty_type)
-        try:
-            await verifying_msg.edit_text(
-                f"❌ *Old {pretty_type}!*\nOnly last {UTR_MAX_AGE_HOURS}h accepted.\n\n"
-                f"📞 Contact: @{OWNER_TG_USERNAME}",
-                parse_mode='Markdown'
-            )
-        except:
-            pass
-        clear_user_state(user_id)
-        return ConversationHandler.END
-
-    # CASE 4: manual review
-    data["pending_payments"][str(user_id)]["status"] = "manual_review"
-    save_data(data)
-    err = result.get("error")
-    if err == "timeout":
-        fail_reason = f"Auto verify timeout ({AUTO_VERIFY_TIMEOUT}s)"
-    elif err:
-        fail_reason = f"System error: {err}"
-    else:
-        fail_reason = f"{pretty_type} not found in last {UTR_MAX_AGE_HOURS}h"
-    await log_auto_approve_attempt(context, user_id, username, amount, idval, "MANUAL REVIEW", fail_reason, id_type=pretty_type)
-
-    try:
-        keyboard_owner = [[
-            InlineKeyboardButton("✅ APPROVE", callback_data=f"approve_fund_{user_id}"),
-            InlineKeyboardButton("❌ REJECT", callback_data=f"reject_fund_{user_id}")
-        ]]
-        await context.bot.send_photo(
-            chat_id=OWNER_ID, photo=photo_id,
-            caption=f"💳 *Manual Payment Review*\n\n"
-                    f"👤 {safe_username}\n🆔 `{user_id}`\n"
-                    f"💰 ₹{amount}.00\n🔢 {pretty_type}: `{escape_markdown(idval)}`\n"
-                    f"📱 Source: {src}\n📝 {escape_markdown(fail_reason)}",
-            reply_markup=InlineKeyboardMarkup(keyboard_owner), parse_mode='Markdown'
-        )
-    except Exception as e:
-        logger.error(f"[FORWARD ERROR] {e}")
-
-    try:
-        await verifying_msg.edit_text(
-            f"⚠️ Auto verification failed.\n📝 {escape_markdown(fail_reason)}\n\n"
-            f"📨 Sent to owner for manual approval.\n📞 Contact: @{OWNER_TG_USERNAME}",
-            parse_mode='Markdown'
-        )
-    except:
-        pass
-    clear_user_state(user_id)
-    return ConversationHandler.END
 
 # ============ COUPON REDEEM ============
 async def ask_coupon_code(update, context):
@@ -2896,7 +3096,7 @@ async def handle_coupon_input(update, context):
     clear_user_state(user_id)
     return ConversationHandler.END
 
-# ============ /addaccount FLOW (choose channel first) ============
+# ============ /addaccount FLOW ============
 async def addaccount_cmd(update, context):
     user_id = update.effective_user.id
     if not is_owner(user_id):
@@ -2927,7 +3127,6 @@ async def addacc_pick_channel(update, context):
         parse_mode='Markdown'
     )
 
-# owner_add_number (from panel button) → also asks channel
 async def owner_add_number(update, context):
     query = update.callback_query
     await query.answer()
@@ -3072,7 +3271,7 @@ async def handle_2fa_input(update, context):
     set_user_state(user_id, WAITING_FOR_SESSION, {"country": country, "price": price, "channel": channel})
     return WAITING_FOR_SESSION
 
-# ============ DELETE COUNTRY (buy channel only for simplicity) ============
+# ============ DELETE COUNTRY ============
 async def owner_delete_country(update, context):
     query = update.callback_query
     await query.answer()
@@ -3099,7 +3298,6 @@ async def confirm_delete_country(update, context):
     await query.answer()
     user_id = update.effective_user.id
     parts = query.data.split("_")
-    # delete_confirm_<channel>_<country>
     channel = parts[2]
     country = "_".join(parts[3:])
     if not is_owner(user_id):
@@ -3178,17 +3376,6 @@ async def handle_discount_code(update, context):
 # =========================================================
 # =============== 🤖 AI MANAGEMENT (GROUPS) ===============
 # =========================================================
-"""
-AI runs ONLY in groups (not DM). Triggers:
-  • Bot @username mentioned in the message
-  • The message is a REPLY to any bot message
-  • Free-form message that clearly needs help (heuristic keywords)
-
-Owner controls: /ai on  |  /ai off
-Memory: per-user (chat_id keyed by user id), stored in data['ai_memory']
-AI never uses emojis. AI never spams owner tag — only when strictly needed.
-"""
-
 async def ai_toggle(update, context):
     user_id = update.effective_user.id
     if not is_owner(user_id):
@@ -3224,7 +3411,7 @@ def _ai_memory_get(user_id):
 def _ai_memory_append(user_id, role, content):
     entry = _ai_memory_get(user_id)
     entry.setdefault("history", []).append({"role": role, "content": content, "ts": datetime.now().isoformat()})
-    entry["history"] = entry["history"][-20:]  # keep last 20 turns
+    entry["history"] = entry["history"][-20:]
     data["ai_memory"][str(user_id)] = entry
     save_data(data)
 
@@ -3232,7 +3419,7 @@ def _user_context_snapshot(user_id):
     u = data["users"].get(str(user_id), {})
     purchases = u.get("purchases", [])
     last_purchases = []
-    for p in purchases[-3:]:
+    for p in purchases[-5:]:
         last_purchases.append({
             "country": p.get("country"),
             "quantity": p.get("quantity"),
@@ -3255,12 +3442,49 @@ def _user_context_snapshot(user_id):
         "user_id": user_id,
         "username": u.get("username", f"User_{user_id}"),
         "balance": u.get("balance", 0),
+        "total_purchases": len(purchases),
+        "total_spent": sum(p.get("price", 0) for p in purchases),
         "last_purchases": last_purchases,
         "pending_payment": pending_summary
     }
 
+def _full_bot_snapshot():
+    """✅ NEW: Complete bot state for AI - stock, sales, all data."""
+    buy_stock = {}
+    for country, info in data.get("accounts", {}).items():
+        buy_stock[country] = {
+            "quantity": info.get("quantity", 0),
+            "price": info.get("price", 0)
+        }
+    resale_stock = {}
+    for country, info in data.get("resale_accounts", {}).items():
+        resale_stock[country] = {
+            "quantity": info.get("quantity", 0),
+            "price": info.get("price", 0)
+        }
+    sales_stats = data.get("sales_stats", {})
+    total_users = len(data.get("users", {}))
+    total_revenue = sum(
+        p.get("price", 0) for u in data.get("users", {}).values()
+        for p in u.get("purchases", []) if p.get("status") == "completed"
+    )
+    total_buy_stock = sum(i.get("quantity", 0) for i in data.get("accounts", {}).values())
+    total_resale_stock = sum(i.get("quantity", 0) for i in data.get("resale_accounts", {}).values())
+    return {
+        "buy_accounts_available": buy_stock,
+        "resale_accounts_available": resale_stock,
+        "sales_stats_per_country": sales_stats,
+        "total_users_in_bot": total_users,
+        "total_revenue_inr": total_revenue,
+        "total_buy_stock": total_buy_stock,
+        "total_resale_stock": total_resale_stock,
+        "upi_id": UPI_ID,
+        "min_deposit": MIN_DEPOSIT,
+        "resale_source_bot": RESALE_BUYER_BOT,
+        "owner_contact": OWNER_TG_LINK
+    }
+
 def _ai_should_answer_freeform(text_lower):
-    """Heuristic: message that clearly needs help, without tag/reply."""
     if not text_lower:
         return False
     triggers = [
@@ -3269,7 +3493,9 @@ def _ai_should_answer_freeform(text_lower):
         "payment", "fund", "add funds", "balance", "otp nahi", "otp nhi",
         "buy account", "resale", "kaise", "how to", "kaise karu", "kaise kare",
         "confusion", "confused", "samajh nahi", "samajh nhi", "please help",
-        "owner", "kon owner", "who is owner", "malik", "support chahiye"
+        "owner", "kon owner", "who is owner", "malik", "support chahiye",
+        "stock", "kitna", "available", "price", "rate", "sell", "sold",
+        "kitne", "how many", "country", "countries", "देश", "क्या", "kya"
     ]
     return any(t in text_lower for t in triggers)
 
@@ -3280,7 +3506,6 @@ def _bot_username_from_context(context):
         return ""
 
 async def _call_groq_ai(system_prompt, history_messages, user_message):
-    """Call Groq chat completions. Returns text or None on failure."""
     key = API_KEYS[0]
     headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
     messages = [{"role": "system", "content": system_prompt}]
@@ -3293,7 +3518,7 @@ async def _call_groq_ai(system_prompt, history_messages, user_message):
         "model": MODEL,
         "messages": messages,
         "temperature": 0.6,
-        "max_tokens": 500
+        "max_tokens": 600
     }
     try:
         async with aiohttp.ClientSession() as s:
@@ -3308,7 +3533,6 @@ async def _call_groq_ai(system_prompt, history_messages, user_message):
         return None
 
 async def _call_groq_vision(image_url, prompt):
-    """Vision analysis (used when AI thinks it must look at a screenshot)."""
     key = API_KEYS[0]
     headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
     payload = {
@@ -3334,29 +3558,31 @@ async def _call_groq_vision(image_url, prompt):
         logger.error(f"[VISION ERROR] {e}")
         return None
 
-def _build_ai_system_prompt(user_snapshot):
-    """Professional, no-emoji, memory-aware system prompt."""
+def _build_ai_system_prompt(user_snapshot, bot_snapshot):
+    """✅ UPGRADED: Full bot access AI - knows stock, sales, everything."""
     return (
         "You are a professional, calm, human-like support assistant for a Telegram bot called Zudo OTP Bot.\n"
-        "Style rules (STRICT):\n"
-        "- Never use emojis at all.\n"
+        "You have FULL access to the bot's live state — stock, sales, users, revenue, payments — via the JSON snapshots below.\n\n"
+        "STRICT STYLE RULES:\n"
+        "- NEVER use emojis at all.\n"
         "- Match the user's tone (Hinglish or English) but stay polite and professional.\n"
         "- Keep replies short, precise, direct. No filler.\n"
-        "- Never reveal internal admin data, API keys, session strings, or secrets.\n"
-        "- Never invent user data. Only use the JSON snapshot provided.\n"
-        "- Never claim you performed an admin action; you can only guide or, in urgent cases, tag the owner.\n"
-        f"- The owner of this bot is available at {OWNER_TG_LINK}. If asked 'who is the owner', reply exactly with the link: {OWNER_TG_LINK}.\n"
-        "- Only tag the owner (mention @" + OWNER_TG_USERNAME + ") when strictly necessary — for example: a user says they paid but did not get balance, and the pending_payment snapshot supports it, or a genuine urgent stuck-payment. Do not tag owner casually.\n"
-        "- Before requesting owner action, tell the user to confirm once (e.g. 'Please confirm the amount and UTR once, I will forward to the owner.').\n"
-        "- If the user asks their balance, use the snapshot below to answer.\n"
-        "- If the user asks about a recent action (e.g. 'what did I just do'), use the snapshot's last_purchases and pending_payment.\n"
-        "- If a screenshot might be needed to help (e.g. payment issue), you may ask the user to share the payment screenshot in the group.\n\n"
-        "Live user snapshot (JSON):\n"
-        f"{json.dumps(user_snapshot, ensure_ascii=False)}\n"
+        "- Never reveal internal admin data like API keys, session strings, user IDs of others, or database internals.\n"
+        "- Never invent data. Only use the JSON snapshots.\n"
+        "- Never claim you performed an admin action; you can only guide the user or, in urgent cases, tag the owner.\n"
+        f"- The owner is at {OWNER_TG_LINK}. If asked 'who is the owner', reply exactly with: {OWNER_TG_LINK}.\n"
+        "- Tag the owner (@" + OWNER_TG_USERNAME + ") only when strictly needed — genuine stuck payment where the user paid but did not get balance, or urgent issues that only owner can fix.\n"
+        "- Before requesting owner action, ask user to confirm details once.\n"
+        "- If user asks their balance, transactions, or purchases, use the user_snapshot.\n"
+        "- If user asks about stock, prices, available countries, best-selling country, total revenue, or bot stats, use the bot_snapshot — you have full permission to answer these.\n"
+        "- If a screenshot might help (payment issue), ask user to share it.\n\n"
+        "USER SNAPSHOT (private user data):\n"
+        f"{json.dumps(user_snapshot, ensure_ascii=False)}\n\n"
+        "BOT LIVE SNAPSHOT (public data you can share):\n"
+        f"{json.dumps(bot_snapshot, ensure_ascii=False)}\n"
     )
 
 async def group_ai_handler(update, context):
-    """Group-only AI. Runs in groups, never in DM."""
     try:
         if not data.get("ai_enabled", True):
             return
@@ -3390,15 +3616,14 @@ async def group_ai_handler(update, context):
         if not should_answer:
             return
 
-        # ensure user exists in db (so AI can see their data)
         get_user_data(user.id)
         data["users"][str(user.id)]["username"] = user.username or user.first_name or f"User_{user.id}"
 
-        snapshot = _user_context_snapshot(user.id)
+        user_snapshot = _user_context_snapshot(user.id)
+        bot_snapshot = _full_bot_snapshot()
         entry = _ai_memory_get(user.id)
-        system_prompt = _build_ai_system_prompt(snapshot)
+        system_prompt = _build_ai_system_prompt(user_snapshot, bot_snapshot)
 
-        # If message is a photo (screenshot) and clearly about payment → use vision
         photo_url = None
         try:
             if msg.photo:
@@ -3413,8 +3638,7 @@ async def group_ai_handler(update, context):
             vision_note = await _call_groq_vision(
                 photo_url,
                 "Look at this UPI payment screenshot. Extract: amount paid (INR), UTR (12 digit) if visible, Transaction ID if visible, "
-                "recipient UPI id/name if visible, and payment status (success/failed/pending). Reply as short JSON like "
-                "{\"amount\":..,\"utr\":\"..\",\"txn_id\":\"..\",\"to\":\"..\",\"status\":\"..\"}"
+                "recipient UPI id/name if visible, and payment status (success/failed/pending). Reply as short JSON."
             )
             if vision_note:
                 _ai_memory_append(user.id, "user", f"[SCREENSHOT SEEN] {vision_note}\nUser text: {text}")
@@ -3492,33 +3716,35 @@ async def button_handler(update, context):
         if data_str == "coupon_code":
             return await ask_coupon_code(update, context)
 
-        # UPI source selection
+        # UPI source
         if data_str in ("upisrc_fampay", "upisrc_other"):
             await handle_upi_source(update, context); return
         if data_str == "upisrc_back":
             await handle_upi_source_back(update, context); return
+
+        # Resale channel — CHECK FIRST (before buy) since they have prefix
+        if data_str.startswith("rcountry_"):
+            country = data_str[len("rcountry_"):]
+            query.data = f"country_{country}"
+            await show_account_details(update, context, channel="resale"); return
+        if data_str.startswith("rbuy_number_"):
+            return await process_buy_number(update, context, channel="resale")
+        if data_str.startswith("rcnfbuy_"):
+            await confirm_purchase_resale(update, context); return
 
         # Buy channel
         if data_str.startswith("country_"):
             await show_account_details(update, context, channel="buy"); return
         if data_str.startswith("buy_number_"):
             return await process_buy_number(update, context, channel="buy")
-        if data_str.startswith("confirm_buy_"):
+        if data_str.startswith("cnfbuy_"):
             await confirm_purchase_buy(update, context); return
-
-        # Resale channel
-        if data_str.startswith("rcountry_"):
-            fake_data = data_str.replace("rcountry_", "country_", 1)
-            query.data = fake_data
-            await show_account_details(update, context, channel="resale"); return
-        if data_str.startswith("rbuy_number_"):
-            fake_data = data_str.replace("rbuy_number_", "buy_number_", 1)
-            query.data = fake_data
-            return await process_buy_number(update, context, channel="resale")
-        if data_str.startswith("rconfirm_buy_"):
-            fake_data = data_str.replace("rconfirm_buy_", "confirm_buy_", 1)
-            query.data = fake_data
-            await confirm_purchase_resale(update, context); return
+        # Legacy confirm_buy_ callbacks
+        if data_str.startswith("confirm_buy_"):
+            # convert to new format
+            payload = data_str[len("confirm_buy_"):]
+            query.data = f"cnfbuy_{payload}"
+            await confirm_purchase_buy(update, context); return
 
         if data_str.startswith("get_number_"):
             await get_number_handler(update, context); return
@@ -3575,15 +3801,18 @@ async def button_handler(update, context):
 
 async def error_handler(update, context):
     logger.error(f"Error: {context.error}")
+    # Do not spam "Try /start" for known conversation flow issues
     if update and update.effective_message:
+        err_str = str(context.error).lower()
+        if "message is not modified" in err_str or "query is too old" in err_str:
+            return
         try:
-            await update.effective_message.reply_text("❌ Error occurred! Try /start")
+            await update.effective_message.reply_text("⚠️ Something went wrong. Please try again or contact support.")
         except:
             pass
 
 # ============ GLOBAL TEXT FALLBACK ============
 async def global_text_fallback(update, context):
-    # In groups → forward to AI handler
     if update.effective_chat and update.effective_chat.type != "private":
         await group_ai_handler(update, context)
         return
@@ -3591,6 +3820,21 @@ async def global_text_fallback(update, context):
     user_id = update.effective_user.id
     st = get_user_state(user_id)
     cs = st["state"]
+
+    # ✅ Priority: check if there's a pending payment awaiting UTR (session recovery)
+    if cs == -1:
+        pp = data["pending_payments"].get(str(user_id))
+        if pp and pp.get("status") in ("awaiting_utr", "submitted") and not pp.get("utr"):
+            # Recover the UTR state
+            src = pp.get("upi_source")
+            if src:
+                set_user_state(user_id, WAITING_FOR_UTR, {
+                    "amount": pp["amount"],
+                    "photo_id": pp["photo_id"],
+                    "upi_source": src
+                })
+                return await handle_utr_input(update, context)
+
     if cs == WAITING_FOR_TARGET_USER_ID:
         return await owner_handle_target_user_id(update, context)
     if cs == WAITING_FOR_TARGET_AMOUNT:
@@ -3698,11 +3942,9 @@ def main():
     application.add_handler(CommandHandler("cancel", cancel_cmd))
     application.add_handler(CommandHandler("ai", ai_toggle))
 
-    # DM fallbacks (text + photo)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE, global_text_fallback))
     application.add_handler(MessageHandler(filters.PHOTO & ~filters.COMMAND & filters.ChatType.PRIVATE, handle_photo_owner))
 
-    # ✅ Group AI: any message in groups (text or photo) → AI handler
     application.add_handler(MessageHandler(
         (filters.TEXT | filters.PHOTO) & ~filters.COMMAND & (filters.ChatType.GROUP | filters.ChatType.SUPERGROUP),
         group_ai_handler
@@ -3711,7 +3953,7 @@ def main():
     application.add_error_handler(error_handler)
 
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print("🔥 ZUDO OTP BOT — MongoDB + AI v6 🔥")
+    print("🔥 ZUDO OTP BOT — MongoDB + AI v7 (FIXED) 🔥")
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     print(f"👑 Owner: {OWNER_ID}")
     print(f"📊 Users: {len(data['users'])}")
