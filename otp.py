@@ -79,7 +79,10 @@ AUTO_VERIFY_TIMEOUT = 10
 UTR_MAX_AGE_HOURS = 1
 
 # ===== AI CONFIG =====
-API_KEYS = [os.getenv("GROQ_API_KEY")]
+# ===== AI CONFIG =====
+API_KEYS = [
+    "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",
+]
 OPENROUTER_URL = "https://api.groq.com/openai/v1/chat/completions"
 MODEL        = "llama-3.1-8b-instant"
 VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
