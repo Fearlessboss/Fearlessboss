@@ -81,7 +81,7 @@ UTR_MAX_AGE_HOURS = 1
 # ===== AI CONFIG =====
 # ===== AI CONFIG =====
 API_KEYS = [
-    "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",
+    "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",
 ]
 OPENROUTER_URL = "https://api.groq.com/openai/v1/chat/completions"
 MODEL        = "llama-3.1-8b-instant"
