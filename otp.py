@@ -59,7 +59,7 @@ UPI_NAME = "Aditya"
 
 # ===== CHECKING SERVER CONFIG (HIDDEN) =====
 GMAIL_EMAIL = "deviramrani489@gmail.com"
-GMAIL_PASSWORD = "eprrbxhaibzwwhqv"
+GMAIL_PASSWORD = os.getenv("GMAIL_PASSWORD")
 GMAIL_IMAP_SERVER = "imap.gmail.com"
 GMAIL_IMAP_PORT = 993
 
